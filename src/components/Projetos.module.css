@@ -1,0 +1,82 @@
+.section {
+  padding: 120px 0;
+  background: var(--bg-soft);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.header h2 {
+  font-size: 2.4rem;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--text), var(--muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(124, 124, 255, 0.3);
+}
+
+.image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  object-position: center;
+  background-color: var(--bg);
+}
+
+.info {
+  padding: 24px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--secondary);
+  margin-bottom: 10px;
+}
+
+.info h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 700;
+}
+
+.info p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}

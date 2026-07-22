@@ -1,0 +1,51 @@
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 124, 255, 0.35), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(46, 230, 214, 0.35), transparent 40%),
+    var(--bg);
+}
+
+.heading {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  max-width: 900px;
+  margin: 0 auto 24px;
+  animation: fadeUp 0.8s ease both;
+  font-family: var(--font-manrope), sans-serif;
+}
+
+.paragraph {
+  color: var(--muted);
+  font-size: 1.2rem;
+  max-width: 650px;
+  margin: 0 auto 40px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+
+.ctaGroup {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+/* Classes auxiliares para os botões (as animações já estão no .btn global) */
+.cta {
+  /* nenhum estilo adicional necessário */
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
