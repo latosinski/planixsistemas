@@ -16,7 +16,6 @@ export default function Home() {
       <Beneficios />
       <Projetos />
       <Etapas />
-
       <Faq />
       <Contato />
       <Footer />
