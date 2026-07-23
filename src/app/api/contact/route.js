@@ -23,9 +23,9 @@ export async function POST(request) {
     });
 
     const mailOptions = {
-      from: `"Site VercelSistemas" <${process.env.EMAIL_USER}>`,
+      from: `"Site Planix Sistemas" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO || process.env.EMAIL_USER,
-      subject: 'Novo contato do site VercelSistemas',
+      subject: 'Novo contato do site Planix Sistemas',
       html: `
         <h2>Novo contato via formulário</h2>
         <p><strong>Nome:</strong> ${nome}</p>

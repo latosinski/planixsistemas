@@ -39,12 +39,12 @@ export const metadata = {
   openGraph: {
     title: 'Planix Sistemas | Sites e Sistemas Profissionais',
     description:
-      'Criamos sites e sistemas que transformam seu negócio. Mais presença digital, eficiência e resultados.',
+      'Desenvolvemos soluções sob medida para o seu negócio. Mais presença digital, eficiência e resultados.',
     type: 'website',
-    url: 'https://www.planixsistemas.com.br',
+    url: 'https://planixsistemas.vercel.app/',
     images: [
       {
-        url: 'https://www.planixsistemas.com.br/img/og-image.jpg',
+        url: 'https://planixsistemas.vercel.app//img/og-image.jpg',
         width: 1200,
         height: 630,
       },
@@ -54,7 +54,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'PlanixSistemas',
     description: 'Desenvolvimento de sites e sistemas sob medida.',
-    images: ['https://www.planixsistemas.com.br/img/og-image.jpg'],
+    images: ['https://planixsistemas.vercel.app//img/og-image.jpg'],
   },
 };
 

@@ -5,11 +5,12 @@ export default function Hero() {
     <section className={styles.hero}>
       <div className="container">
         <h1 className={styles.heading}>
-          Criamos sites e sistemas profissionais para o seu negócio
+          Desenvolvemos soluções sob medida para o seu negócio
         </h1>
         <p className={styles.paragraph}>
-          Da presença digital à automação de processos: design, tecnologia e
-          estratégia unidos para gerar resultados reais.
+          Sistemas personalizados, sites profissionais 
+          e soluções digitais que automatizam rotinas, aumentam a produtividade 
+          e oferecem mais controle sobre o seu negócio.
         </p>
         <div className={styles.ctaGroup}>
           <a href="#contato" className={`btn primary ${styles.cta}`}>
