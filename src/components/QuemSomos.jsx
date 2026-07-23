@@ -46,7 +46,7 @@ export default function QuemSomos() {
         <div className={styles.header}>
           <h2>Quem somos</h2>
           <p>
-            A VercelSistemas é uma empresa especializada em desenvolvimento de
+            A Planix Sistemas é uma empresa especializada em desenvolvimento de
             sites e sistemas. Unimos design moderno e tecnologia para entregar
             soluções digitais que realmente funcionam para o seu negócio.
           </p>
