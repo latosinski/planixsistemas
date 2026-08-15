@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AgroGestão | Protótipo</title>
+	<style>
+		/* Todo o CSS permanece igual ao último arquivo funcional */
+		:root {
+			--green: #18794e;
+			--green2: #0f5d39;
+			--bg: #f4f7f5;
+			--card: #fff;
+			--text: #17231c;
+			--muted: #6d7b73;
+			--line: #e1e8e3;
+			--danger: #c83f3f;
+			--warn: #b97813;
+			--blue: #256db2;
+			--side: #13251b;
+			--side2: #1b3427
+		}
+
+		body.dark {
+			--bg: #101512;
+			--card: #1a211c;
+			--text: #e3ece6;
+			--muted: #93a69a;
+			--line: #2a352e;
+			--side: #0d1410;
+			--side2: #132019;
+			--green: #239a63;
+			--green2: #18794e;
+			--danger: #ef5f5f;
+			--warn: #d4932e;
+			--blue: #5b9bd5;
+		}
+
+		body.dark .topbar {
+			background: #1a211dd9;
+		}
+
+		body.dark .toolbar,
+		body.dark .period,
+		body.dark .filter,
+		body.dark .modal,
+		body.dark .field input,
+		body.dark .field select,
+		body.dark .search {
+			background: #1a211c;
+			color: var(--text);
+		}
+
+		body.dark .table th {
+			background: #161c18;
+		}
+
+		body.dark .table tr:hover td {
+			background: #1d241f;
+		}
+
+		body.dark .actions button,
+		body.dark .close {
+			background: #242c27;
+			color: var(--muted);
+		}
+
+		body.dark .field label {
+			color: #b9c9c0;
+		}
+
+		body.dark .brand {
+			border-color: #233c2e;
+		}
+
+		.icon-btn {
+			width: 38px;
+			height: 38px;
+			border-radius: 10px;
+			background: #f1f5f2;
+			display: grid;
+			place-items: center;
+			font-size: 16px;
+			border: 0;
+			cursor: pointer;
+		}
+
+		body.dark .icon-btn {
+			background: #242c27;
+		}
+
+		.sidebar-close-btn {
+			display: none;
+			width: 32px;
+			height: 32px;
+			border-radius: 8px;
+			border: 1px solid var(--line);
+			background: var(--bg);
+			color: var(--muted);
+			cursor: pointer;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			position: absolute;
+			right: 12px;
+			top: 50%;
+			transform: translateY(-50%);
+			transition: all 0.2s;
+		}
+
+		.sidebar-close-btn:hover {
+			background: var(--danger);
+			color: #fff;
+			border-color: var(--danger);
+		}
+
+		* {
+			box-sizing: border-box
+		}
+
+		body {
+			margin: 0;
+			font: 14px Inter, Arial, sans-serif;
+			background: var(--bg);
+			color: var(--text)
+		}
+
+		button,
+		input,
+		select {
+			font: inherit
+		}
+
+		button {
+			cursor: pointer;
+			border: 0
+		}
+
+		.app {
+			min-height: 100vh
+		}
+
+		.sidebar {
+			position: fixed;
+			inset: 0 auto 0 0;
+			width: 255px;
+			background: var(--side);
+			color: #c6d4cc;
+			padding: 18px 12px;
+			overflow: auto;
+			z-index: 20
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			padding: 8px 10px 22px;
+			border-bottom: 1px solid #294235;
+			position: relative;
+		}
+
+		.logo {
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
+			display: grid;
+			place-items: center;
+			background: linear-gradient(135deg, #28a66b, #78c96e);
+			color: #fff;
+			font-weight: 900;
+			font-size: 18px
+		}
+
+		.brand b {
+			display: block;
+			color: #fff
+		}
+
+		.brand small {
+			color: #91a99b;
+			font-size: 10px
+		}
+
+		.nav-title {
+			font-size: 10px;
+			letter-spacing: 1.2px;
+			color: #789083;
+			margin: 20px 10px 7px
+		}
+
+		.nav {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			padding: 11px 12px;
+			margin: 3px 0;
+			border-radius: 10px;
+			background: transparent;
+			color: #b9c9c0;
+			text-align: left
+		}
+
+		.nav:hover {
+			background: #20392b;
+			color: #fff
+		}
+
+		.nav.active {
+			background: var(--green);
+			color: #fff;
+			box-shadow: 0 8px 20px #0a3d274d
+		}
+
+		.nav .ico {
+			width: 20px;
+			text-align: center
+		}
+
+		.main {
+			margin-left: 255px;
+			min-height: 100vh
+		}
+
+		.topbar {
+			height: 72px;
+			background: #ffffffeb;
+			backdrop-filter: blur(10px);
+			border-bottom: 1px solid var(--line);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 28px;
+			position: sticky;
+			top: 0;
+			z-index: 10
+		}
+
+		.topbar h2 {
+			font-size: 17px;
+			margin: 0
+		}
+
+		.crumb {
+			font-size: 10px;
+			color: var(--muted);
+			margin-top: 4px
+		}
+
+		.topright {
+			display: flex;
+			align-items: center;
+			gap: 12px
+		}
+
+		.period {
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			padding: 9px 11px;
+			background: #fff;
+			font-size: 12px
+		}
+
+		.avatar {
+			width: 38px;
+			height: 38px;
+			border-radius: 50%;
+			display: grid;
+			place-items: center;
+			background: #e0f1e7;
+			color: var(--green);
+			font-weight: 800
+		}
+
+		.menu {
+			display: none;
+			width: 40px;
+			height: 40px;
+			border-radius: 9px;
+			background: #f1f5f2;
+			font-size: 20px;
+			line-height: 1;
+			text-align: center;
+			vertical-align: middle;
+		}
+
+		.content {
+			padding: 27px;
+			max-width: 1600px;
+			margin: auto
+		}
+
+		.page {
+			display: none
+		}
+
+		.page.active {
+			display: block
+		}
+
+		.hero {
+			display: flex;
+			justify-content: space-between;
+			align-items: end;
+			gap: 15px;
+			margin-bottom: 20px
+		}
+
+		.hero h1 {
+			font-size: 26px;
+			margin: 0
+		}
+
+		.hero p {
+			color: var(--muted);
+			margin: 7px 0 0;
+			font-size: 12px
+		}
+
+		.btn {
+			padding: 10px 14px;
+			border-radius: 9px;
+			font-weight: 700;
+			font-size: 12px
+		}
+
+		.primary {
+			background: var(--green);
+			color: #fff
+		}
+
+		.primary:hover {
+			background: var(--green2)
+		}
+
+		.light {
+			background: #fff;
+			border: 1px solid var(--line);
+			color: var(--text)
+		}
+
+		.danger {
+			background: #fff0f0;
+			color: var(--danger)
+		}
+
+		.grid {
+			display: grid;
+			gap: 16px
+		}
+
+		.kpis {
+			grid-template-columns: repeat(4, 1fr);
+			margin-bottom: 16px
+		}
+
+		.two {
+			grid-template-columns: 1.55fr 1fr
+		}
+
+		.three {
+			grid-template-columns: repeat(3, 1fr)
+		}
+
+		.card {
+			background: var(--card);
+			border: 1px solid var(--line);
+			border-radius: 15px;
+			box-shadow: 0 3px 15px #1630220a;
+			overflow: hidden
+		}
+
+		.kpi {
+			padding: 18px;
+			min-height: 122px;
+			position: relative
+		}
+
+		.label {
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: .4px;
+			color: var(--muted)
+		}
+
+		.value {
+			font-size: 24px;
+			font-weight: 850;
+			margin: 8px 0 5px
+		}
+
+		.note {
+			font-size: 10px;
+			color: var(--muted)
+		}
+
+		.kicon {
+			position: absolute;
+			right: 17px;
+			top: 17px;
+			width: 39px;
+			height: 39px;
+			border-radius: 12px;
+			display: grid;
+			place-items: center;
+			background: #e8f6ee;
+			color: var(--green);
+			font-size: 17px
+		}
+
+		.head {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 17px 18px 10px
+		}
+
+		.title {
+			font-weight: 800;
+			font-size: 13px
+		}
+
+		.sub {
+			font-size: 10px;
+			color: var(--muted);
+			margin-top: 4px
+		}
+
+		.body {
+			padding: 8px 18px 18px
+		}
+
+		.chart {
+			height: 260px;
+			display: flex;
+			align-items: end;
+			gap: 18px;
+			padding: 20px 12px 8px;
+			border-bottom: 1px solid var(--line)
+		}
+
+		.bar {
+			flex: 1;
+			background: #dff1e7;
+			border-radius: 8px 8px 0 0;
+			position: relative;
+			min-width: 22px
+		}
+
+		.bar i {
+			position: absolute;
+			bottom: -23px;
+			width: 100%;
+			text-align: center;
+			font-style: normal;
+			font-size: 9px;
+			color: var(--muted)
+		}
+
+		.alert {
+			display: flex;
+			gap: 10px;
+			padding: 13px 0;
+			border-bottom: 1px solid var(--line)
+		}
+
+		.dot {
+			width: 9px;
+			height: 9px;
+			border-radius: 50%;
+			background: var(--warn);
+			margin-top: 4px;
+			flex: none
+		}
+
+		.alert b {
+			font-size: 11px
+		}
+
+		.alert span {
+			display: block;
+			color: var(--muted);
+			font-size: 10px;
+			margin-top: 4px
+		}
+
+		.toolbar {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			background: #fff;
+			border: 1px solid var(--line);
+			padding: 12px;
+			border-radius: 13px;
+			margin-bottom: 14px
+		}
+
+		.search {
+			flex: 1;
+			min-width: 190px;
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			padding: 10px 12px;
+			background: #f8faf9
+		}
+
+		.filter {
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			padding: 9px 10px;
+			background: #fff;
+			font-size: 12px
+		}
+
+		.tablewrap {
+			overflow: auto
+		}
+
+		.table {
+			width: 100%;
+			min-width: 760px;
+			border-collapse: collapse
+		}
+
+		.table th {
+			background: #f8faf9;
+			color: var(--muted);
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: .4px;
+			text-align: left;
+			padding: 12px
+		}
+
+		.table td {
+			padding: 13px 12px;
+			border-top: 1px solid var(--line);
+			font-size: 12px
+		}
+
+		.table tr:hover td {
+			background: #fbfdfb
+		}
+
+		.muted {
+			font-size: 10px;
+			color: var(--muted);
+			display: block;
+			margin-top: 3px
+		}
+
+		.badge {
+			display: inline-block;
+			padding: 5px 8px;
+			border-radius: 99px;
+			font-size: 9px;
+			font-weight: 800
+		}
+
+		.ok {
+			background: #eaf8f0;
+			color: #238454
+		}
+
+		.warning {
+			background: #fff6e6;
+			color: #b97813
+		}
+
+		.bad {
+			background: #fff0f0;
+			color: #c83f3f
+		}
+
+		.info {
+			background: #eaf4ff;
+			color: #256db2
+		}
+
+		.actions button {
+			width: 30px;
+			height: 30px;
+			border-radius: 8px;
+			background: #f5f8f6;
+			color: var(--muted);
+			margin-right: 4px
+		}
+
+		.stat {
+			display: flex;
+			justify-content: space-between;
+			padding: 12px 0;
+			border-bottom: 1px solid var(--line);
+			font-size: 11px
+		}
+
+		.stat:last-child {
+			border: 0
+		}
+
+		.stat b {
+			font-size: 11px
+		}
+
+		.empty {
+			padding: 50px 20px;
+			text-align: center;
+			color: var(--muted)
+		}
+
+		.empty b {
+			display: block;
+			color: var(--text);
+			margin: 10px
+		}
+
+		.modalback {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: #0c191355;
+			z-index: 50;
+			align-items: center;
+			justify-content: center;
+			padding: 20px
+		}
+
+		.modalback.show {
+			display: flex
+		}
+
+		.modal {
+			width: min(720px, 100%);
+			max-height: 90vh;
+			overflow: auto;
+			background: #fff;
+			border-radius: 17px;
+			box-shadow: 0 25px 80px #0004
+		}
+
+		.modalhead {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 18px 20px;
+			border-bottom: 1px solid var(--line)
+		}
+
+		.modalhead h3 {
+			margin: 0;
+			font-size: 15px
+		}
+
+		.close {
+			width: 34px;
+			height: 34px;
+			border-radius: 9px;
+			background: #f4f7f5;
+			font-size: 19px
+		}
+
+		.modalbody {
+			padding: 20px
+		}
+
+		.form {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 14px
+		}
+
+		.field {
+			display: flex;
+			flex-direction: column;
+			gap: 6px
+		}
+
+		.field.full {
+			grid-column: 1/-1
+		}
+
+		.field label {
+			font-size: 10px;
+			font-weight: 800;
+			color: #4d5d54
+		}
+
+		.field input,
+		.field select {
+			height: 42px;
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			padding: 9px 11px
+		}
+
+		.modalfoot {
+			padding: 15px 20px;
+			border-top: 1px solid var(--line);
+			display: flex;
+			justify-content: end;
+			gap: 9px
+		}
+
+		.toast {
+			position: fixed;
+			right: 20px;
+			bottom: 20px;
+			background: #17251d;
+			color: #fff;
+			padding: 13px 16px;
+			border-radius: 10px;
+			font-size: 11px;
+			font-weight: 700;
+			transform: translateY(90px);
+			opacity: 0;
+			transition: .25s;
+			z-index: 70
+		}
+
+		.toast.show {
+			transform: none;
+			opacity: 1
+		}
+
+		.overlay {
+			display: none
+		}
+
+		@media(max-width:1100px) {
+			.kpis {
+				grid-template-columns: repeat(2, 1fr)
+			}
+
+			.two {
+				grid-template-columns: 1fr
+			}
+
+			.three {
+				grid-template-columns: repeat(2, 1fr)
+			}
+		}
+
+		@media(max-width:820px) {
+			.sidebar {
+				transform: translateX(-100%);
+				box-shadow: 15px 0 50px #0004
+			}
+
+			.sidebar.open {
+				transform: none
+			}
+
+			.overlay.show {
+				display: block;
+				position: fixed;
+				inset: 0;
+				background: #0007;
+				z-index: 19
+			}
+
+			.main {
+				margin-left: 0
+			}
+
+			.menu {
+				display: block;
+			}
+
+			.sidebar-close-btn {
+				display: flex;
+			}
+
+			.content {
+				padding: 18px
+			}
+
+			.topbar {
+				padding: 0 15px
+			}
+
+			.period {
+				display: none
+			}
+		}
+
+		@media(max-width:540px) {
+			.content {
+				padding: 14px
+			}
+
+			.hero {
+				align-items: flex-start;
+				flex-direction: column
+			}
+
+			.hero .btn {
+				width: 100%
+			}
+
+			.kpis,
+			.three {
+				grid-template-columns: 1fr
+			}
+
+			.topright .usertext {
+				display: none
+			}
+
+			.form {
+				grid-template-columns: 1fr
+			}
+
+			.field.full {
+				grid-column: auto
+			}
+
+			.modalback {
+				align-items: end;
+				padding: 0
+			}
+
+			.modal {
+				border-radius: 18px 18px 0 0
+			}
+
+			.toolbar {
+				flex-direction: column
+			}
+
+			.search,
+			.filter {
+				width: 100%
+			}
+		}
+		    .nav.logout {
+	            color: #279B4D;
+	            border-top: 1px solid #294235;
+	            margin-top: 10px;
+        }
+            .nav.logout:hover {
+	            background: #3a1f1f;
+	            color: #1FB70B;
+        }
+	</style>
+</head>
+
+<body>
+	<div class="app">
+		<aside class="sidebar" id="sidebar">
+			<div class="brand">
+				<div class="logo">A</div>
+				<div><b>AgroGestão</b><small>Gestão integrada</small></div>
+				<button class="sidebar-close-btn" id="sidebarCloseBtn" title="Fechar menu">×</button>
+			</div>
+			<!-- ANÁLISES -->
+			<div class="nav-title">ANÁLISES</div>
+			<button class="nav active" data-page="dashboard" data-title="Dashboard" data-crumb="Visão geral"><span class="ico">▦</span>Dashboard</button>
+			<button class="nav" data-page="indicadores" data-title="Indicadores" data-crumb="Indicadores de desempenho"><span class="ico">▥</span>Indicadores</button>
+			<button class="nav" data-page="relatorios" data-title="Relatórios" data-crumb="Análises gerenciais"><span class="ico">▤</span>Relatórios</button>
+			<button class="nav" data-page="comparativo_safras" data-title="Comparativo de Safras" data-crumb="Comparação entre safras"><span class="ico">⇄</span>Comparativo de Safras</button>
+			<button class="nav" data-page="projecoes" data-title="Projeções" data-crumb="Projeções futuras"><span class="ico">↗</span>Projeções</button>
+
+			<!-- GESTÃO RURAL -->
+			<div class="nav-title">GESTÃO RURAL</div>
+			<button class="nav" data-page="propriedades" data-title="Propriedades" data-crumb="Cadastro de propriedades"><span class="ico">⌂</span>Propriedades</button>
+			<button class="nav" data-page="areas_talhoes" data-title="Áreas e Talhões" data-crumb="Gestão de áreas e talhões"><span class="ico">⊞</span>Áreas e Talhões</button>
+			<button class="nav" data-page="safras" data-title="Safras" data-crumb="Planejamento e acompanhamento de safras"><span class="ico">❋</span>Safras</button>
+			<button class="nav" data-page="culturas" data-title="Culturas" data-crumb="Cadastro de culturas"><span class="ico">✿</span>Culturas</button>
+			<button class="nav" data-page="planejamento_agricola" data-title="Planejamento Agrícola" data-crumb="Plano de plantio e insumos"><span class="ico">◫</span>Planejamento Agrícola</button>
+			<button class="nav" data-page="atividades_campo" data-title="Atividades de Campo" data-crumb="Registro de atividades diárias"><span class="ico">✎</span>Atividades de Campo</button>
+			<button class="nav" data-page="aplicacoes_agricolas" data-title="Aplicações Agrícolas" data-crumb="Controle de aplicações"><span class="ico">✚</span>Aplicações Agrícolas</button>
+			<button class="nav" data-page="estimativa_colheita" data-title="Estimativa de Colheita" data-crumb="Projeção de produtividade"><span class="ico">⚖</span>Estimativa de Colheita</button>
+
+			<!-- ESTOQUE E COMPRAS -->
+			<div class="nav-title">ESTOQUE E COMPRAS</div>
+			<button class="nav" data-page="produtos" data-title="Produtos e Insumos" data-crumb="Cadastro de produtos e insumos"><span class="ico">◈</span>Produtos e Insumos</button>
+			<button class="nav" data-page="estoque" data-title="Estoque" data-crumb="Controle de estoque"><span class="ico">↕</span>Estoque</button>
+			<button class="nav" data-page="movimentacoes" data-title="Movimentações" data-crumb="Entradas e saídas"><span class="ico">⇄</span>Movimentações</button>
+			<button class="nav" data-page="solicitacoes_compra" data-title="Solicitações de Compra" data-crumb="Requisições internas"><span class="ico">✉</span>Solicitações de Compra</button>
+			<button class="nav" data-page="cotacoes" data-title="Cotações" data-crumb="Comparativo de preços"><span class="ico">✦</span>Cotações</button>
+			<button class="nav" data-page="pedidos_compra" data-title="Pedidos de Compra" data-crumb="Ordens de compra"><span class="ico">☑</span>Pedidos de Compra</button>
+			<button class="nav" data-page="fornecedores" data-title="Fornecedores" data-crumb="Cadastro de fornecedores"><span class="ico">⎔</span>Fornecedores</button>
+
+			<!-- MÁQUINAS E EQUIPAMENTOS -->
+			<div class="nav-title">MÁQUINAS E EQUIPAMENTOS</div>
+			<button class="nav" data-page="equipamentos" data-title="Equipamentos" data-crumb="Gestão de equipamentos"><span class="ico">⚙</span>Equipamentos</button>
+			<button class="nav" data-page="abastecimentos" data-title="Abastecimentos" data-crumb="Controle de combustível"><span class="ico">⛽</span>Abastecimentos</button>
+			<button class="nav" data-page="manutencoes" data-title="Manutenções" data-crumb="Controle de manutenções"><span class="ico">⌕</span>Manutenções</button>
+			<button class="nav" data-page="horimetro_km" data-title="Horímetro e Quilometragem" data-crumb="Registro de horas e km"><span class="ico">↻</span>Horímetro e Quilometragem</button>
+			<button class="nav" data-page="custos_operacionais" data-title="Custos Operacionais" data-crumb="Custos por equipamento"><span class="ico">₪</span>Custos Operacionais</button>
+
+			<!-- FINANCEIRO -->
+			<div class="nav-title">FINANCEIRO</div>
+			<button class="nav" data-page="fluxo_caixa" data-title="Fluxo de Caixa" data-crumb="Visão geral de caixa"><span class="ico">⇅</span>Fluxo de Caixa</button>
+			<button class="nav" data-page="contas_pagar" data-title="Contas a Pagar" data-crumb="Obrigações a pagar"><span class="ico">↓</span>Contas a Pagar</button>
+			<button class="nav" data-page="contas_receber" data-title="Contas a Receber" data-crumb="Valores a receber"><span class="ico">↑</span>Contas a Receber</button>
+			<button class="nav" data-page="lancamentos" data-title="Lançamentos" data-crumb="Registro de lançamentos"><span class="ico">≡</span>Lançamentos</button>
+			<button class="nav" data-page="centros_custo" data-title="Centros de Custo" data-crumb="Alocação por centro"><span class="ico">◧</span>Centros de Custo</button>
+			<button class="nav" data-page="custos_safra" data-title="Custos por Safra" data-crumb="Custos alocados por safra"><span class="ico">✎</span>Custos por Safra</button>
+			<button class="nav" data-page="resultado_economico" data-title="Resultado Econômico" data-crumb="Demonstrativo de resultado"><span class="ico">∑</span>Resultado Econômico</button>
+
+			<!-- PESSOAS -->
+			<div class="nav-title">PESSOAS</div>
+			<button class="nav" data-page="colaboradores" data-title="Colaboradores" data-crumb="Equipe"><span class="ico">♟</span>Colaboradores</button>
+			<button class="nav" data-page="apontamento_horas" data-title="Apontamento de Horas" data-crumb="Registro de horas trabalhadas"><span class="ico">◷</span>Apontamento de Horas</button>
+			<button class="nav" data-page="custos_mao_obra" data-title="Custos de Mão de Obra" data-crumb="Custos com pessoal"><span class="ico">⚒</span>Custos de Mão de Obra</button>
+			<button class="nav" data-page="folha_pagamento" data-title="Folha de Pagamento" data-crumb="Processamento da folha"><span class="ico">⛁</span>Folha de Pagamento</button>
+
+			<!-- COMERCIALIZAÇÃO -->
+			<div class="nav-title">COMERCIALIZAÇÃO</div>
+			<button class="nav" data-page="producao" data-title="Produção" data-crumb="Registro de produção"><span class="ico">▣</span>Produção</button>
+			<button class="nav" data-page="estoque_producao" data-title="Estoques de Produção" data-crumb="Estoque de produtos acabados"><span class="ico">▤</span>Estoques de Produção</button>
+			<button class="nav" data-page="contratos" data-title="Contratos" data-crumb="Gestão de contratos"><span class="ico">✍</span>Contratos</button>
+			<button class="nav" data-page="vendas" data-title="Vendas" data-crumb="Pedidos e vendas"><span class="ico">⇗</span>Vendas</button>
+			<button class="nav" data-page="entregas" data-title="Entregas" data-crumb="Logística de entrega"><span class="ico">⇶</span>Entregas</button>
+
+			<!-- ADMINISTRAÇÃO -->
+			<div class="nav-title">ADMINISTRAÇÃO</div>
+			<button class="nav" data-page="usuarios" data-title="Usuários" data-crumb="Gestão de usuários"><span class="ico">♔</span>Usuários</button>
+			<button class="nav" data-page="permissoes" data-title="Permissões" data-crumb="Controle de acesso"><span class="ico">⚿</span>Permissões</button>
+			<button class="nav" data-page="configuracoes" data-title="Configurações" data-crumb="Parâmetros do sistema"><span class="ico">⚙</span>Configurações</button>
+			<button class="nav" data-page="auditoria" data-title="Auditoria" data-crumb="Logs e auditoria"><span class="ico">⌘</span>Auditoria</button>
+				<!-- SAIR DO SISTEMA -->
+			<button class="nav logout" id="logoutBtn"><span class="ico">⏻</span>Sair do sistema</button>
+		</aside>
+		<div class="overlay" id="overlay"></div>
+		<main class="main">
+			<header class="topbar">
+				<div style="display:flex;align-items:center;gap:13px">
+					<button class="menu" id="menu">☰</button>
+					<div>
+						<h2 id="topTitle">Dashboard</h2>
+						<div class="crumb">AgroGestão / <span id="crumb">Visão geral</span></div>
+					</div>
+				</div>
+				<div class="topright">
+					<button class="icon-btn" id="darkModeToggle" title="Alternar tema">🌙</button>
+					<select class="period">
+						<option>Julho de 2026</option>
+						<option>Junho de 2026</option>
+					</select>
+					<div class="avatar">FL</div>
+					<div class="usertext"><b style="font-size:12px">Administrador</b><span class="muted">Acesso
+							administrativo</span></div>
+				</div>
+			</header>
+			<section class="content">
+
+				<!-- PÁGINAS EXISTENTES (mantidas) -->
+				<section class="page active" id="dashboard">
+					<div class="hero">
+						<div>
+							<h1>Visão geral</h1>
+							<p>Resumo operacional, financeiro e de estoque.</p>
+						</div><button class="btn primary" onclick="openModal('movimentacao')">+ Nova
+							movimentação</button>
+					</div>
+					<div class="grid kpis">
+						<div class="card kpi"><span class="label">VALOR EM ESTOQUE</span>
+							<div class="value" id="stockValue">R$ 86.420</div><span class="note">Baseado no custo
+								cadastrado</span>
+							<div class="kicon">◈</div>
+						</div>
+						<div class="card kpi"><span class="label">RECEITAS DO MÊS</span>
+							<div class="value">R$ 42.800</div><span class="note">+ 8,4% em relação ao mês
+								anterior</span>
+							<div class="kicon">↗</div>
+						</div>
+						<div class="card kpi"><span class="label">DESPESAS DO MÊS</span>
+							<div class="value">R$ 27.650</div><span class="note">Custos operacionais registrados</span>
+							<div class="kicon">↘</div>
+						</div>
+						<div class="card kpi"><span class="label">ITENS EM ALERTA</span>
+							<div class="value" id="alertCount">3</div><span class="note">Abaixo do estoque mínimo</span>
+							<div class="kicon">!</div>
+						</div>
+					</div>
+					<div class="grid two">
+						<div class="card">
+							<div class="head">
+								<div>
+									<div class="title">Resultado mensal</div>
+									<div class="sub">Receitas, despesas e saldo</div>
+								</div><span class="badge info">Jul/2026</span>
+							</div>
+							<div class="body">
+								<div class="chart" id="chart"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div>
+									<div class="title">Alertas operacionais</div>
+									<div class="sub">Itens que exigem atenção</div>
+								</div>
+							</div>
+							<div class="body" id="alerts"></div>
+						</div>
+					</div>
+					<div class="grid three" style="margin-top:16px">
+						<div class="card">
+							<div class="head">
+								<div class="title">Contas a receber</div>
+							</div>
+							<div class="body">
+								<div class="stat"><span>Em aberto</span><b>R$ 12.500</b></div>
+								<div class="stat"><span>Vencendo esta semana</span><b>R$ 4.200</b></div>
+								<div class="stat"><span>Recebido no mês</span><b>R$ 42.800</b></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div class="title">Contas a pagar</div>
+							</div>
+							<div class="body">
+								<div class="stat"><span>Em aberto</span><b>R$ 18.900</b></div>
+								<div class="stat"><span>Vencendo esta semana</span><b>R$ 6.750</b></div>
+								<div class="stat"><span>Pago no mês</span><b>R$ 27.650</b></div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div class="title">Operação</div>
+							</div>
+							<div class="body">
+								<div class="stat"><span>Equipamentos ativos</span><b>14</b></div>
+								<div class="stat"><span>Manutenções abertas</span><b>2</b></div>
+								<div class="stat"><span>Serviços em andamento</span><b>5</b></div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="page" id="produtos">
+					<div class="hero">
+						<div>
+							<h1>Produtos</h1>
+							<p>Cadastro de insumos, materiais e itens comercializados.</p>
+						</div><button class="btn primary" onclick="openModal('produto')">+ Novo produto</button>
+					</div>
+					<div class="toolbar"><input class="search" placeholder="Pesquisar por nome, código ou categoria..."
+							oninput="filterTable(this,'productsTable')"><select class="filter">
+							<option>Todas as categorias</option>
+							<option>Insumos</option>
+							<option>Materiais</option>
+						</select></div>
+					<div class="card tablewrap">
+						<table class="table" id="productsTable">
+							<thead>
+								<tr>
+									<th>Código</th>
+									<th>Produto</th>
+									<th>Categoria</th>
+									<th>Estoque</th>
+									<th>Mínimo</th>
+									<th>Custo</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="productsBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="estoque">
+					<div class="hero">
+						<div>
+							<h1>Controle de estoque</h1>
+							<p>Entradas, saídas, ajustes e histórico de movimentações.</p>
+						</div><button class="btn primary" onclick="openModal('movimentacao')">+ Registrar
+							movimentação</button>
+					</div>
+					<div class="grid kpis">
+						<div class="card kpi"><span class="label">ITENS CADASTRADOS</span>
+							<div class="value" id="productCount">0</div><span class="note">Produtos ativos</span>
+						</div>
+						<div class="card kpi"><span class="label">QUANTIDADE TOTAL</span>
+							<div class="value" id="totalQty">0</div><span class="note">Unidades em estoque</span>
+						</div>
+						<div class="card kpi"><span class="label">BAIXO ESTOQUE</span>
+							<div class="value" id="lowQty">0</div><span class="note">Abaixo do mínimo</span>
+						</div>
+						<div class="card kpi"><span class="label">MOVIMENTAÇÕES</span>
+							<div class="value" id="moveCount">0</div><span class="note">Registros demonstrativos</span>
+						</div>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Data</th>
+									<th>Tipo</th>
+									<th>Produto</th>
+									<th>Quantidade</th>
+									<th>Responsável</th>
+									<th>Observação</th>
+								</tr>
+							</thead>
+							<tbody id="movesBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="financeiro">
+					<div class="hero">
+						<div>
+							<h1>Financeiro</h1>
+							<p>Controle simplificado de receitas, despesas e fluxo de caixa.</p>
+						</div><button class="btn primary" onclick="openModal('lancamento')">+ Novo lançamento</button>
+					</div>
+					<div class="grid kpis">
+						<div class="card kpi"><span class="label">SALDO ATUAL</span>
+							<div class="value" id="balance">R$ 15.150</div><span class="note">Receitas menos
+								despesas</span>
+						</div>
+						<div class="card kpi"><span class="label">RECEITAS</span>
+							<div class="value">R$ 42.800</div><span class="note">Competência atual</span>
+						</div>
+						<div class="card kpi"><span class="label">DESPESAS</span>
+							<div class="value">R$ 27.650</div><span class="note">Competência atual</span>
+						</div>
+						<div class="card kpi"><span class="label">A PAGAR</span>
+							<div class="value">R$ 18.900</div><span class="note">Títulos em aberto</span>
+						</div>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Data</th>
+									<th>Tipo</th>
+									<th>Descrição</th>
+									<th>Categoria</th>
+									<th>Valor</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="financeBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="equipamentos">
+					<div class="hero">
+						<div>
+							<h1>Equipamentos</h1>
+							<p>Controle de máquinas, veículos e equipamentos operacionais.</p>
+						</div><button class="btn primary" onclick="openModal('equipamento')">+ Novo equipamento</button>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Identificação</th>
+									<th>Equipamento</th>
+									<th>Categoria</th>
+									<th>Horímetro</th>
+									<th>Última manutenção</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="equipBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="manutencoes">
+					<div class="hero">
+						<div>
+							<h1>Manutenções</h1>
+							<p>Planejamento e acompanhamento das manutenções preventivas e corretivas.</p>
+						</div><button class="btn primary" onclick="openModal('manutencao')">+ Nova manutenção</button>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Equipamento</th>
+									<th>Tipo</th>
+									<th>Abertura</th>
+									<th>Previsão</th>
+									<th>Responsável</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="maintenanceBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="servicos">
+					<div class="hero">
+						<div>
+							<h1>Serviços terceirizados</h1>
+							<p>Controle de fornecedores, serviços contratados e custos.</p>
+						</div><button class="btn primary" onclick="openModal('servico')">+ Novo serviço</button>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Serviço</th>
+									<th>Fornecedor</th>
+									<th>Início</th>
+									<th>Valor</th>
+									<th>Responsável</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="serviceBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="contatos">
+					<div class="hero">
+						<div>
+							<h1>Contatos</h1>
+							<p>Cadastro de clientes, fornecedores e parceiros.</p>
+						</div><button class="btn primary" onclick="openModal('contato')">+ Novo contato</button>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Nome</th>
+									<th>Tipo</th>
+									<th>Telefone</th>
+									<th>E-mail</th>
+									<th>Cidade</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="contactBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="colaboradores">
+					<div class="hero">
+						<div>
+							<h1>Colaboradores</h1>
+							<p>Cadastro e acompanhamento da equipe.</p>
+						</div><button class="btn primary" onclick="openModal('colaborador')">+ Novo colaborador</button>
+					</div>
+					<div class="card tablewrap">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Nome</th>
+									<th>Função</th>
+									<th>Admissão</th>
+									<th>Telefone</th>
+									<th>Remuneração</th>
+									<th>Status</th>
+									<th>Ações</th>
+								</tr>
+							</thead>
+							<tbody id="employeeBody"></tbody>
+						</table>
+					</div>
+				</section>
+
+				<section class="page" id="relatorios">
+					<div class="hero">
+						<div>
+							<h1>Relatórios</h1>
+							<p>Consultas gerenciais para apoio à tomada de decisão.</p>
+						</div>
+					</div>
+					<div class="grid three">
+						<div class="card">
+							<div class="head">
+								<div class="title">Posição de estoque</div>
+							</div>
+							<div class="body">
+								<p class="sub">Quantidade, custo e valorização dos itens.</p><button class="btn light"
+									style="margin-top:16px" onclick="toast('Relatório de estoque gerado.')">Gerar
+									relatório</button>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div class="title">Fluxo financeiro</div>
+							</div>
+							<div class="body">
+								<p class="sub">Receitas, despesas e saldo por período.</p><button class="btn light"
+									style="margin-top:16px" onclick="toast('Relatório financeiro gerado.')">Gerar
+									relatório</button>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div class="title">Custos operacionais</div>
+							</div>
+							<div class="body">
+								<p class="sub">Custos por equipamento, serviço e categoria.</p><button class="btn light"
+									style="margin-top:16px" onclick="toast('Relatório de custos gerado.')">Gerar
+									relatório</button>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="page" id="configuracoes">
+					<div class="hero">
+						<div>
+							<h1>Configurações</h1>
+							<p>Parâmetros gerais do sistema.</p>
+						</div><button class="btn primary" onclick="toast('Configurações salvas.')">Salvar
+							alterações</button>
+					</div>
+					<div class="grid two">
+						<div class="card">
+							<div class="head">
+								<div class="title">Dados da empresa</div>
+							</div>
+							<div class="body">
+								<div class="form">
+									<div class="field full"><label>Nome da empresa</label><input value="Fazenda Modelo">
+									</div>
+									<div class="field"><label>CNPJ</label><input value="00.000.000/0001-00"></div>
+									<div class="field"><label>Telefone</label><input value="(51) 99999-9999"></div>
+									<div class="field full"><label>E-mail</label><input
+											value="contato@fazendamodelo.com.br"></div>
+								</div>
+							</div>
+						</div>
+						<div class="card">
+							<div class="head">
+								<div class="title">Preferências</div>
+							</div>
+							<div class="body">
+								<div class="stat"><span>Alertar estoque mínimo</span><input type="checkbox" checked>
+								</div>
+								<div class="stat"><span>Exibir valores financeiros</span><input type="checkbox" checked>
+								</div>
+								<div class="stat"><span>Notificar manutenções</span><input type="checkbox" checked>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</section>
+		</main>
+	</div>
+
+	<!-- Modal -->
+	<div class="modalback" id="modalback">
+		<div class="modal">
+			<div class="modalhead">
+				<h3 id="modalTitle">Novo cadastro</h3><button class="close" onclick="closeModal()">×</button>
+			</div>
+			<div class="modalbody">
+				<div class="form" id="formFields"></div>
+			</div>
+			<div class="modalfoot"><button class="btn light" onclick="closeModal()">Cancelar</button><button
+					class="btn primary" onclick="saveModal()">Salvar</button></div>
+		</div>
+	</div>
+	<div class="toast" id="toast"></div>
+
+	<script>
+		// Dados de exemplo (mantidos)
+		const state = {
+			products: [
+				{ code: 'INS-001', name: 'Adubo NPK 10-10-10', cat: 'Insumos', qty: 120, min: 40, cost: 145.00 },
+				{ code: 'INS-002', name: 'Semente de Milho', cat: 'Insumos', qty: 18, min: 30, cost: 780.00 },
+				{ code: 'MAT-001', name: 'Arame galvanizado', cat: 'Materiais', qty: 65, min: 20, cost: 18.50 },
+				{ code: 'INS-003', name: 'Herbicida seletivo', cat: 'Insumos', qty: 8, min: 15, cost: 320.00 },
+				{ code: 'MAT-002', name: 'Mangueira 1 polegada', cat: 'Materiais', qty: 42, min: 20, cost: 12.90 },
+				{ code: 'INS-004', name: 'Calcário agrícola', cat: 'Insumos', qty: 220, min: 100, cost: 92.00 }
+			],
+			moves: [
+				{ date: '30/07/2026', type: 'Entrada', product: 'Adubo NPK 10-10-10', qty: '+ 40', user: 'Administrador', note: 'Compra fornecedor' },
+				{ date: '29/07/2026', type: 'Saída', product: 'Herbicida seletivo', qty: '- 7', user: 'João Silva', note: 'Aplicação lavoura' },
+				{ date: '28/07/2026', type: 'Saída', product: 'Semente de Milho', qty: '- 12', user: 'Carlos Souza', note: 'Plantio área norte' },
+				{ date: '27/07/2026', type: 'Entrada', product: 'Mangueira 1 polegada', qty: '+ 20', user: 'Administrador', note: 'Reposição' }
+			],
+			finance: [
+				['30/07/2026', 'Receita', 'Venda de produção', 'Comercialização', 'R$ 18.500', 'Recebido'],
+				['29/07/2026', 'Despesa', 'Compra de insumos', 'Insumos', 'R$ 8.750', 'Pago'],
+				['28/07/2026', 'Despesa', 'Manutenção do trator', 'Manutenção', 'R$ 3.200', 'Pago'],
+				['25/07/2026', 'Receita', 'Venda de animais', 'Comercialização', 'R$ 12.000', 'Recebido'],
+				['24/07/2026', 'Despesa', 'Serviço terceirizado', 'Serviços', 'R$ 4.600', 'Em aberto']
+			]
+		};
+		const rows = {
+			equipamentos: [['TR-001', 'Trator John Deere 6110J', 'Trator', '4.820 h', '12/06/2026', 'Ativo'], ['COL-001', 'Colheitadeira S660', 'Colheitadeira', '3.140 h', '05/07/2026', 'Ativo'], ['CAM-001', 'Caminhão Ford Cargo', 'Veículo', '128.500 km', '18/06/2026', 'Manutenção']],
+			manutencoes: [['Caminhão Ford Cargo', 'Corretiva', '28/07/2026', '02/08/2026', 'Oficina Central', 'Em andamento'], ['Trator John Deere 6110J', 'Preventiva', '25/07/2026', '05/08/2026', 'Equipe interna', 'Agendada'], ['Colheitadeira S660', 'Preventiva', '10/07/2026', '15/07/2026', 'Equipe interna', 'Concluída']],
+			servicos: [['Pulverização aérea', 'Agro Serviços Ltda.', '26/07/2026', 'R$ 8.500', 'Carlos Souza', 'Em andamento'], ['Transporte de grãos', 'Transportadora Sul', '20/07/2026', 'R$ 4.600', 'Administrador', 'Concluído'], ['Análise de solo', 'Laboratório Rural', '29/07/2026', 'R$ 1.250', 'João Silva', 'Agendado']],
+			contatos: [['Agro Serviços Ltda.', 'Fornecedor', '(51) 3333-2222', 'contato@agroservicos.com', 'Porto Alegre', 'Ativo'], ['Cooperativa Regional', 'Cliente', '(51) 3222-1100', 'comercial@cooperativa.com', 'Canoas', 'Ativo'], ['Laboratório Rural', 'Fornecedor', '(51) 3444-8888', 'atendimento@laboratorio.com', 'Viamão', 'Ativo']],
+			colaboradores: [['João Silva', 'Operador de máquinas', '10/03/2022', '(51) 99991-1111', 'R$ 3.800', 'Ativo'], ['Carlos Souza', 'Encarregado operacional', '15/08/2020', '(51) 99992-2222', 'R$ 5.200', 'Ativo'], ['Marcos Lima', 'Auxiliar rural', '02/01/2025', '(51) 99993-3333', 'R$ 2.450', 'Ativo']]
+		};
+
+		function money(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }
+		function badge(s) { let c = /Ativo|Recebido|Pago|Concluído/.test(s) ? 'ok' : /Aberto|andamento|Manutenção|baixo/i.test(s) ? 'warning' : /Agendada/.test(s) ? 'info' : 'bad'; return `<span class="badge ${c}">${s}</span>` }
+		function render() {
+			let pb = document.getElementById('productsBody'); pb.innerHTML = state.products.map((p, i) => `<tr><td>${p.code}</td><td><b>${p.name}</b><span class="muted">Unidade: un</span></td><td>${p.cat}</td><td>${p.qty}</td><td>${p.min}</td><td>${money(p.cost)}</td><td>${p.qty <= p.min ? badge('Baixo estoque') : badge('Normal')}</td><td class="actions"><button onclick="editProduct(${i})">✎</button><button onclick="deleteProduct(${i})">×</button></td></tr>`).join('');
+			document.getElementById('movesBody').innerHTML = state.moves.map(m => `<tr><td>${m.date}</td><td>${badge(m.type)}</td><td><b>${m.product}</b></td><td>${m.qty}</td><td>${m.user}</td><td>${m.note}</td></tr>`).join('');
+			document.getElementById('financeBody').innerHTML = state.finance.map((r, i) => `<tr>${r.map((x, j) => `<td>${j === 1 ? badge(x) : j === 5 ? badge(x) : x}</td>`).join('')}<td class="actions"><button onclick="toast('Lançamento aberto para edição.')">✎</button></td></tr>`).join('');
+			for (const [key, id] of Object.entries({ equipamentos: 'equipBody', manutencoes: 'maintenanceBody', servicos: 'serviceBody', contatos: 'contactBody', colaboradores: 'employeeBody' })) {
+				document.getElementById(id).innerHTML = rows[key].map(r => `<tr>${r.map((x, i) => `<td>${i === r.length - 1 ? badge(x) : x}</td>`).join('')}<td class="actions"><button onclick="toast('Registro aberto para edição.')">✎</button><button onclick="toast('Ação demonstrativa.')">⋮</button></td></tr>`).join('')
+			}
+			const total = state.products.reduce((a, p) => a + p.qty, 0), low = state.products.filter(p => p.qty <= p.min).length, value = state.products.reduce((a, p) => a + p.qty * p.cost, 0);
+			document.getElementById('productCount').textContent = state.products.length; document.getElementById('totalQty').textContent = total; document.getElementById('lowQty').textContent = low; document.getElementById('moveCount').textContent = state.moves.length; document.getElementById('alertCount').textContent = low; document.getElementById('stockValue').textContent = money(value);
+			document.getElementById('alerts').innerHTML = state.products.filter(p => p.qty <= p.min).map(p => `<div class="alert"><i class="dot"></i><div><b>${p.name}</b><span>Estoque atual: ${p.qty} | Mínimo: ${p.min}</span></div></div>`).join('') || '<div class="empty"><b>Nenhum alerta</b>Todos os itens estão dentro do nível mínimo.</div>';
+			document.getElementById('chart').innerHTML = [42, 58, 48, 72, 64, 82, 70].map((v, i) => `<div class="bar" style="height:${v}%"><i>${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'][i]}</i></div>`).join('');
+		}
+		function filterTable(inp, id) { const q = inp.value.toLowerCase(); document.querySelectorAll('#' + id + ' tbody tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none') }
+
+		// Navegação e menu mobile
+		const menu = document.getElementById('menu');
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('overlay');
+		const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+		function showPage(id) {
+			// Garante que a página exista; se não, cria placeholder
+			let pageEl = document.getElementById(id);
+			if (!pageEl) {
+				const btn = document.querySelector(`.nav[data-page="${id}"]`);
+				const title = btn?.dataset.title || id;
+				const crumb = btn?.dataset.crumb || title;
+				pageEl = document.createElement('section');
+				pageEl.className = 'page';
+				pageEl.id = id;
+				pageEl.innerHTML = `<div class="hero">
+					<div>
+						<h1>${title}</h1>
+						<p>${crumb}</p>
+					</div>
+					<button class="btn primary" onclick="toast('Módulo em desenvolvimento para apresentação.')">+ Novo registro</button>
+				</div>
+				<div class="card">
+					<div class="head">
+						<div class="title">${title}</div>
+						<div class="sub">Conteúdo demonstrativo</div>
+					</div>
+					<div class="body">
+						<div class="empty"><b>Módulo em preparação</b>Este espaço exibirá os dados de ${title.toLowerCase()}.</div>
+					</div>
+				</div>`;
+				document.querySelector('.content').appendChild(pageEl);
+			}
+
+			// Ativa a página
+			document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+			pageEl.classList.add('active');
+			document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.page === id));
+			
+			// Atualiza cabeçalho
+			const btn = document.querySelector(`.nav[data-page="${id}"]`);
+			const title = btn?.dataset.title || id;
+			const crumb = btn?.dataset.crumb || title;
+			document.getElementById('topTitle').textContent = title;
+			document.getElementById('crumb').textContent = crumb;
+
+			closeSidebar();
+			window.scrollTo(0, 0);
+		}
+
+		function closeSidebar() {
+			sidebar.classList.remove('open');
+			overlay.classList.remove('show');
+			menu.textContent = '☰';
+		}
+
+		menu.addEventListener('click', () => {
+			sidebar.classList.toggle('open');
+			overlay.classList.toggle('show');
+			menu.textContent = sidebar.classList.contains('open') ? '×' : '☰';
+		});
+
+		overlay.addEventListener('click', closeSidebar);
+		sidebarCloseBtn.addEventListener('click', closeSidebar);
+
+document.querySelectorAll('.nav').forEach(btn => {
+	btn.addEventListener('click', () => {
+		// Se for o botão de sair, apenas exibe toast e fecha o menu
+		if (btn.id === 'logoutBtn') {
+			toast('Sessão encerrada (demonstração).');
+			closeSidebar();
+			return;
+		}
+		showPage(btn.dataset.page);
+	});
+});
+
+		// Dark Mode
+		const darkToggle = document.getElementById('darkModeToggle');
+		if (localStorage.getItem('agrogestao-theme') === 'dark') {
+			document.body.classList.add('dark');
+			darkToggle.textContent = '☀️';
+		}
+		darkToggle.addEventListener('click', () => {
+			document.body.classList.toggle('dark');
+			const isDark = document.body.classList.contains('dark');
+			darkToggle.textContent = isDark ? '☀️' : '🌙';
+			localStorage.setItem('agrogestao-theme', isDark ? 'dark' : 'light');
+		});
+
+		// Modais e formulários
+		let modalType = '', editing = null;
+		const schemas = {
+			produto: { title: 'Novo produto', fields: [['Código', 'code', 'text'], ['Nome do produto', 'name', 'text'], ['Categoria', 'cat', 'select'], ['Quantidade inicial', 'qty', 'number'], ['Estoque mínimo', 'min', 'number'], ['Custo unitário', 'cost', 'number']] },
+			movimentacao: { title: 'Nova movimentação', fields: [['Tipo', 'type', 'select'], ['Produto', 'product', 'select'], ['Quantidade', 'qty', 'number'], ['Responsável', 'user', 'text'], ['Observação', 'note', 'text']] },
+			lancamento: { title: 'Novo lançamento financeiro', fields: [['Tipo', 'type', 'select'], ['Descrição', 'desc', 'text'], ['Categoria', 'cat', 'select'], ['Valor', 'value', 'number'], ['Data', 'date', 'date'], ['Status', 'status', 'select']] },
+			equipamento: { title: 'Novo equipamento', fields: [['Identificação', 'id', 'text'], ['Nome do equipamento', 'name', 'text'], ['Categoria', 'cat', 'select'], ['Horímetro/quilometragem', 'meter', 'text'], ['Última manutenção', 'last', 'date'], ['Status', 'status', 'select']] },
+			manutencao: { title: 'Nova manutenção', fields: [['Equipamento', 'equip', 'select'], ['Tipo', 'type', 'select'], ['Data de abertura', 'date', 'date'], ['Previsão', 'forecast', 'date'], ['Responsável', 'user', 'text'], ['Status', 'status', 'select']] },
+			servico: { title: 'Novo serviço', fields: [['Serviço', 'name', 'text'], ['Fornecedor', 'supplier', 'text'], ['Data de início', 'date', 'date'], ['Valor', 'value', 'number'], ['Responsável', 'user', 'text'], ['Status', 'status', 'select']] },
+			contato: { title: 'Novo contato', fields: [['Nome', 'name', 'text'], ['Tipo', 'type', 'select'], ['Telefone', 'phone', 'text'], ['E-mail', 'email', 'email'], ['Cidade', 'city', 'text'], ['Status', 'status', 'select']] },
+			colaborador: { title: 'Novo colaborador', fields: [['Nome', 'name', 'text'], ['Função', 'role', 'text'], ['Data de admissão', 'date', 'date'], ['Telefone', 'phone', 'text'], ['Remuneração', 'salary', 'number'], ['Status', 'status', 'select']] }
+		};
+		function openModal(type, data = null) { modalType = type; editing = data; const s = schemas[type]; modalTitle.textContent = s.title; formFields.innerHTML = s.fields.map((f, i) => { let opts = ''; if (f[2] === 'select') { let vals = f[1] === 'product' ? state.products.map(p => p.name) : f[1] === 'type' ? ['Entrada', 'Saída', 'Receita', 'Despesa', 'Preventiva', 'Corretiva', 'Cliente', 'Fornecedor'] : f[1] === 'status' ? ['Ativo', 'Em aberto', 'Agendado', 'Em andamento', 'Concluído', 'Pago', 'Recebido'] : f[1] === 'cat' ? ['Insumos', 'Materiais', 'Serviços', 'Manutenção', 'Comercialização'] : ['Sim', 'Não']; opts = vals.map(v => `<option>${v}</option>`).join('') } return `<div class="field ${i === s.fields.length - 1 && s.fields.length % 2 ? 'full' : ''}"><label>${f[0]}</label>${f[2] === 'select' ? `<select name="${f[1]}">${opts}</select>` : `<input name="${f[1]}" type="${f[2]}" value="${data?.[f[1]] ?? ''}" required>`}</div>` }).join(''); modalback.classList.add('show') }
+		function closeModal() { modalback.classList.remove('show'); editing = null }
+		function saveModal() {
+			const d = Object.fromEntries(new FormData(document.querySelector('.modal')).entries()); if (modalType === 'produto') { if (!d.name) { toast('Informe o nome do produto.'); return } state.products.push({ code: d.code || 'PRD-' + String(state.products.length + 1).padStart(3, '0'), name: d.name, cat: d.cat, qty: +d.qty || 0, min: +d.min || 0, cost: +d.cost || 0 }); }
+			if (modalType === 'movimentacao') { let p = state.products.find(x => x.name === d.product); let q = +d.qty || 0; if (d.type === 'Saída' && p && q > p.qty) { toast('Saída não permitida: quantidade superior ao estoque.'); return } if (p) p.qty += d.type === 'Saída' ? -q : q; state.moves.unshift({ date: new Date().toLocaleDateString('pt-BR'), type: d.type, product: d.product, qty: (d.type === 'Saída' ? '- ' : '+ ') + q, user: d.user || 'Administrador', note: d.note || 'Movimentação manual' }); }
+			if (modalType === 'lancamento') state.finance.unshift([d.date ? new Date(d.date + 'T12:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR'), d.type, d.desc, d.cat, money(+d.value || 0), d.status]);
+			const map = { equipamento: 'equipamentos', manutencao: 'manutencoes', servico: 'servicos', contato: 'contatos', colaborador: 'colaboradores' }; if (map[modalType]) { const vals = Object.values(d); rows[map[modalType]].unshift(vals) }
+			render(); closeModal(); toast('Registro salvo com sucesso.')
+		}
+		function editProduct(i) { openModal('produto', state.products[i]); toast('Edição demonstrativa: ao salvar será criado um novo registro.') }
+		function deleteProduct(i) { if (confirm('Excluir este produto?')) { state.products.splice(i, 1); render(); toast('Produto excluído.') } }
+		function toast(t) { const e = document.getElementById('toast'); e.textContent = t; e.classList.add('show'); clearTimeout(window.tt); window.tt = setTimeout(() => e.classList.remove('show'), 2800) }
+		modalback.onclick = e => { if (e.target === modalback) closeModal() }; document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal() });
+
+		// Inicialização
+		render();
+	</script>
+</body>
+
+</html>
