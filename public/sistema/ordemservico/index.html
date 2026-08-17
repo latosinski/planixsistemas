@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service++ | Gestão de Serviços</title>
+    <style>
+        :root {
+            --navy: #0f172a;
+            --navy2: #172033;
+            --primary: #2563eb;
+            --primary2: #1d4ed8;
+            --bg: #f4f7fb;
+            --card: #fff;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0284c7;
+            --radius: 14px;
+            --shadow: 0 8px 30px rgba(15, 23, 42, .07)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font: 14px Inter, Segoe UI, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            /* CORREÇÃO: evita travamento brusco do scroll */
+            transition: overflow 0s;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        .app {
+            min-height: 100vh
+        }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 260px;
+            background: var(--navy);
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            height: 74px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            position: relative; /* CORREÇÃO: para posicionar o botão X */
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800
+        }
+
+        .brand b {
+            color: #fff;
+            font-size: 17px
+        }
+
+        .brand small {
+            display: block;
+            color: #7f8da3;
+            margin-top: 2px
+        }
+
+        .nav {
+            padding: 18px 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, .35) transparent
+        }
+
+        .nav::-webkit-scrollbar {
+            width: 6px
+        }
+
+        .nav::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 10px 0
+        }
+
+        .nav::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, .28);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box
+        }
+
+        .nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, .5);
+            border: 2px solid transparent;
+            background-clip: padding-box
+        }
+
+        .nav-title {
+            font-size: 10px;
+            letter-spacing: .12em;
+            color: #64748b;
+            font-weight: 800;
+            margin: 16px 10px 7px
+        }
+
+        .nav-btn {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #b7c2d2;
+            text-align: left;
+            padding: 11px 12px;
+            border-radius: 9px;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 11px
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: #1e293b;
+            color: #fff
+        }
+
+        .nav-btn.active {
+            box-shadow: inset 3px 0 #3b82f6
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center
+        }
+
+        /* CORREÇÃO: botão X dentro da sidebar (aparece no mobile) */
+        .sidebar-close-btn {
+            display: none; /* escondido em telas grandes */
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .sidebar-footer {
+            padding: 14px;
+            border-top: 1px solid rgba(255, 255, 255, .08)
+        }
+
+        .main {
+            margin-left: 260px;
+            min-height: 100vh
+        }
+
+        .topbar {
+            height: 74px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 20; /* CORREÇÃO: z-index baixo, será coberto pelo overlay no mobile */
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .menu-toggle {
+            display: none !important;       /* Garante que fique oculto em telas grandes */
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 10px;
+            place-items: center;
+            font-size: 20px;
+            line-height: 1;
+            transition: background .2s, color .2s, border-color .2s, transform 0.2s;
+            cursor: pointer;
+            color: var(--text);
+        }
+        /* Media query: só aparece em telas menores que 1050px (ajuste se desejar) */
+            @media (max-width: 1050px) {
+            .menu-toggle {
+            display: inline-grid !important;
+        }
+        }
+
+        .menu-toggle.is-open {
+            background: #1e293b;
+            border-color: #334155;
+            color: #fff;
+            transform: rotate(90deg); /* CORREÇÃO: animação sutil ao abrir */
+        }
+
+        .menu-toggle .menu-icon-close {
+            display: none;
+            font-size: 27px;
+            font-weight: 300;
+            line-height: 1;
+            transform: translateY(-1px)
+        }
+
+        .menu-toggle.is-open .menu-icon-open {
+            display: none
+        }
+
+        .menu-toggle.is-open .menu-icon-close {
+            display: block
+        }
+
+        .crumb {
+            color: var(--muted)
+        }
+
+        .crumb b {
+            color: var(--text)
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+
+        .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            right: 9px;
+            top: 8px
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            display: grid;
+            place-items: center;
+            font-weight: 800
+        }
+
+        .content {
+            padding: 28px;
+            max-width: 1600px
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.active {
+            display: block
+        }
+
+        .page-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 22px;
+            gap: 18px
+        }
+
+        .page-head h1 {
+            margin: 0 0 5px;
+            font-size: 25px;
+            letter-spacing: -.03em
+        }
+
+        .page-head p {
+            margin: 0;
+            color: var(--muted)
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #334155;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #f8fafc
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff
+        }
+
+        .btn-primary:hover {
+            background: var(--primary2)
+        }
+
+        .btn-danger {
+            color: var(--danger)
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 18px
+        }
+
+        .kpi {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow)
+        }
+
+        .kpi-top {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase
+        }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center
+        }
+
+        .blue {
+            background: #eff6ff;
+            color: #2563eb
+        }
+
+        .red {
+            background: #fef2f2;
+            color: #dc2626
+        }
+
+        .green {
+            background: #ecfdf5;
+            color: #059669
+        }
+
+        .amber {
+            background: #fffbeb;
+            color: #d97706
+        }
+
+        .kpi-value {
+            font-size: 29px;
+            font-weight: 800;
+            margin: 13px 0 5px
+        }
+
+        .kpi-note {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .up {
+            color: var(--success)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 18px
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 19px
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 800
+        }
+
+        .table-wrap {
+            overflow: auto
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            white-space: nowrap
+        }
+
+        th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            background: #f8fafc
+        }
+
+        tr:hover td {
+            background: #fbfdff
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800
+        }
+
+        .b-open {
+            background: #eff6ff;
+            color: #2563eb
+        }
+
+        .b-progress {
+            background: #f0fdf4;
+            color: #15803d
+        }
+
+        .b-wait {
+            background: #fffbeb;
+            color: #b45309
+        }
+
+        .b-late {
+            background: #fef2f2;
+            color: #b91c1c
+        }
+
+        .b-done {
+            background: #f1f5f9;
+            color: #475569
+        }
+
+        .alert-list {
+            display: grid;
+            gap: 10px
+        }
+
+        .alert {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            gap: 11px
+        }
+
+        .alert strong {
+            display: block
+        }
+
+        .alert small {
+            color: var(--muted)
+        }
+
+        .alert.redline {
+            border-left: 4px solid var(--danger)
+        }
+
+        .alert.amberline {
+            border-left: 4px solid var(--warning)
+        }
+
+        .alert.blueline {
+            border-left: 4px solid var(--primary)
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px
+        }
+
+        .input {
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0 12px;
+            background: #fff;
+            min-width: 160px
+        }
+
+        .search {
+            min-width: 260px;
+            flex: 1
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 15px
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: var(--muted)
+        }
+
+        .statusbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .timeline {
+            border-left: 2px solid #dbe4ef;
+            margin: 10px 0 0 9px;
+            padding-left: 20px
+        }
+
+        .event {
+            position: relative;
+            padding: 0 0 20px
+        }
+
+        .event:before {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2563eb;
+            left: -26px;
+            top: 4px
+        }
+
+        .event small {
+            color: var(--muted)
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 18px;
+            overflow: auto
+        }
+
+        .tab {
+            border: 0;
+            background: none;
+            padding: 12px 15px;
+            color: var(--muted);
+            font-weight: 700;
+            white-space: nowrap
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary)
+        }
+
+        .tab-panel {
+            display: none
+        }
+
+        .tab-panel.active {
+            display: block
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1.3fr .7fr;
+            gap: 18px
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px
+        }
+
+        .field label {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 5px
+        }
+
+        .field div {
+            font-weight: 650
+        }
+
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 18px
+        }
+
+        .modal-bg.show {
+            display: flex
+        }
+
+        .modal {
+            width: min(760px, 100%);
+            max-height: 92vh;
+            overflow: auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, .3)
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .form-group {
+            display: grid;
+            gap: 6px
+        }
+
+        .form-group.full {
+            grid-column: 1/-1
+        }
+
+        .form-group label {
+            font-weight: 750;
+            font-size: 12px
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px;
+            background: #fff
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 20px
+        }
+
+        .mobile-only {
+            display: none
+        }
+
+        /* ---------- OVERLAY (CORREÇÃO: fade + bloqueio de scroll) ---------- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .48);
+            backdrop-filter: blur(2px);
+            z-index: 999; /* entre a topbar (20) e a sidebar (1000) */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+        }
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ---------- RESPONSIVO ---------- */
+        @media(max-width:1050px) {
+            .kpis {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .grid,
+            .detail-grid {
+                grid-template-columns: 1fr
+            }
+
+            .sidebar {
+                
+                transform: translateX(-100%);
+                transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+                box-shadow: none;
+                /* altura ajustada automaticamente porque inset define bottom:0 */
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 18px 0 45px rgba(15, 23, 42, .28)
+            }
+
+            .main {
+                margin-left: 0
+            }
+
+            .menu-toggle {
+                display: inline-grid;
+            }
+
+            .sidebar-close-btn {
+                display: flex; /* exibe o X no mobile */
+            }
+
+            .mobile-only {
+                display: inline-grid
+            }
+
+            /* overlay já definido */
+        }
+
+        @media(max-width:650px) {
+            .content {
+                padding: 18px
+            }
+
+            .topbar {
+                padding: 0 16px
+            }
+
+            .top-actions .icon-btn {
+                display: none
+            }
+
+            .page-head {
+                flex-direction: column
+            }
+
+            .kpis {
+                grid-template-columns: 1fr
+            }
+
+            .form-grid,
+            .info-grid {
+                grid-template-columns: 1fr
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column
+            }
+
+            .filters {
+                flex-direction: column
+            }
+
+            .input,
+            .search {
+                width: 100%;
+                min-width: 0
+            }
+
+            .top-actions .avatar {
+                display: grid
+            }
+
+            .card {
+                padding: 14px
+            }
+
+            .page-head h1 {
+                font-size: 22px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <!-- OVERLAY (CORREÇÃO: elemento com fade) -->
+        <div class="overlay" id="overlay"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="logo">SF</div>
+                <div><b>Service++</b><small>Gestão de Serviços</small></div>
+                <!-- CORREÇÃO: botão X para fechar (visível apenas mobile) -->
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu">×</button>
+            </div>
+            <nav class="nav">
+                <div class="nav-title">VISÃO GERAL</div><button class="nav-btn active" data-page="dashboard">▦
+                    <span>Dashboard</span></button>
+                <div class="nav-title">OPERAÇÃO</div><button class="nav-btn" data-page="ordens">☷ <span>Ordens de
+                        Serviço</span></button><button class="nav-btn" data-page="orcamentos">▤
+                    <span>Orçamentos</span></button><button class="nav-btn" data-page="agenda">◷ <span>Agenda
+                        Técnica</span></button>
+                <div class="nav-title">CADASTROS</div><button class="nav-btn" data-page="clientes">♙
+                    <span>Clientes</span></button><button class="nav-btn" data-page="produtos">▣ <span>Produtos e
+                        Serviços</span></button><button class="nav-btn" data-page="tecnicos">♟
+                    <span>Técnicos</span></button>
+                <div class="nav-title">ESTOQUE</div><button class="nav-btn" data-page="estoque">▤ <span>Posição de
+                        Estoque</span></button><button class="nav-btn" data-page="movimentacoes">↕
+                    <span>Movimentações</span></button>
+                <div class="nav-title">FINANCEIRO</div><button class="nav-btn" data-page="receber">↓ <span>Contas a
+                        Receber</span></button><button class="nav-btn" data-page="pagar">↑ <span>Contas a
+                        Pagar</span></button><button class="nav-btn" data-page="caixa">▥ <span>Fluxo de
+                        Caixa</span></button>
+                <div class="nav-title">GESTÃO</div><button class="nav-btn" data-page="relatorios">▥
+                    <span>Relatórios</span></button><button class="nav-btn" data-page="config">⚙
+                    <span>Configurações</span></button>
+            </nav>
+            <div class="sidebar-footer"><button class="nav-btn" onclick="toast('Sessão encerrada (demonstração)')">⇥
+                    <span>Sair do sistema</span></button></div>
+        </aside>
+        <main class="main">
+            <header class="topbar">
+                <div class="top-left"><button class="icon-btn menu-toggle" id="menuToggle" aria-label="Abrir menu"
+                        aria-expanded="false">
+                        <span class="menu-icon-open" aria-hidden="true">☰</span>
+                        <span class="menu-icon-close" aria-hidden="true">×</span>
+                    </button>
+                    <div class="crumb">ServiceFlow / <b id="crumb">Dashboard</b></div>
+                </div>
+                <div class="top-actions"><button class="icon-btn" title="Notificações"
+                        onclick="toast('Você possui 4 alertas operacionais')">♢<i class="dot"></i></button><button
+                        class="icon-btn" onclick="toast('Ajuda do sistema')">?</button>
+                    <div class="avatar">MR</div>
+                </div>
+            </header>
+            <div class="content">
+                <!-- ================= CONTEÚDO ORIGINAL COMPLETO ================= -->
+                <section class="page active" id="dashboard">
+                    <div class="page-head">
+                        <div>
+                            <h1>Visão geral</h1>
+                            <p>Acompanhe as principais atividades e pendências da operação.</p>
+                        </div>
+                        <div><button class="btn btn-primary" onclick="openModal()">＋ Nova Ordem de Serviço</button></div>
+                    </div>
+                    <div class="kpis">
+                        <div class="kpi">
+                            <div class="kpi-top"><span>OS em aberto</span><span class="kpi-icon blue">⌁</span></div>
+                            <div class="kpi-value">47</div>
+                            <div class="kpi-note"><span class="up">▲ 12%</span> em relação ao mês anterior</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Em execução</span><span class="kpi-icon green">✓</span></div>
+                            <div class="kpi-value">18</div>
+                            <div class="kpi-note">7 atendimentos programados para hoje</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Prazo vencido</span><span class="kpi-icon red">!</span></div>
+                            <div class="kpi-value">8</div>
+                            <div class="kpi-note"><span style="color:var(--danger)">3 críticas</span> exigem atenção imediata</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Estoque crítico</span><span class="kpi-icon amber">▣</span></div>
+                            <div class="kpi-value">5</div>
+                            <div class="kpi-note">Itens abaixo do estoque mínimo</div>
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <div class="card-title">Ordens prioritárias</div><small style="color:var(--muted)">Itens que exigem acompanhamento</small>
+                                </div><button class="btn" onclick="go('ordens')">Ver todas</button>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>OS</th>
+                                            <th>Cliente</th>
+                                            <th>Status</th>
+                                            <th>Técnico</th>
+                                            <th>Prazo</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><b>#1042</b></td>
+                                            <td>Hospital São Lucas</td>
+                                            <td><span class="badge b-late">Prazo vencido</span></td>
+                                            <td>Marcos Ribeiro</td>
+                                            <td>Hoje, 11:00</td>
+                                            <td><button class="btn" onclick="openOS()">Abrir</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>#1045</b></td>
+                                            <td>Indústria Beta</td>
+                                            <td><span class="badge b-progress">Em execução</span></td>
+                                            <td>Ana Costa</td>
+                                            <td>Hoje, 14:00</td>
+                                            <td><button class="btn" onclick="openOS()">Abrir</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>#1038</b></td>
+                                            <td>Condomínio Central</td>
+                                            <td><span class="badge b-wait">Aguardando peça</span></td>
+                                            <td>—</td>
+                                            <td>23/05</td>
+                                            <td><button class="btn" onclick="openOS()">Abrir</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>#1035</b></td>
+                                            <td>Escola Nova Era</td>
+                                            <td><span class="badge b-open">Aberta</span></td>
+                                            <td>Marcos Ribeiro</td>
+                                            <td>24/05</td>
+                                            <td><button class="btn" onclick="openOS()">Abrir</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-head">
+                                <div>
+                                    <div class="card-title">Atenção</div><small style="color:var(--muted)">Alertas operacionais</small>
+                                </div>
+                            </div>
+                            <div class="alert-list">
+                                <div class="alert redline">
+                                    <div>!</div>
+                                    <div><strong>3 OS críticas com prazo vencido</strong><small>Revisar responsáveis e reprogramar atendimentos.</small></div>
+                                </div>
+                                <div class="alert amberline">
+                                    <div>▣</div>
+                                    <div><strong>5 produtos abaixo do mínimo</strong><small>2 itens podem interromper atendimentos.</small></div>
+                                </div>
+                                <div class="alert blueline">
+                                    <div>R$</div>
+                                    <div><strong>R$ 18.450 a receber</strong><small>4 títulos vencem nos próximos 7 dias.</small></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page" id="ordens">
+                    <div class="page-head">
+                        <div>
+                            <h1>Ordens de Serviço</h1>
+                            <p>Controle a abertura, execução, materiais e conclusão dos atendimentos.</p>
+                        </div><button class="btn btn-primary" onclick="openModal()">＋ Nova OS</button>
+                    </div>
+                    <div class="card">
+                        <div class="filters"><input class="input search" id="osSearch" placeholder="Buscar por número, cliente ou técnico..." oninput="filterOS()"><select class="input" id="statusFilter" onchange="filterOS()">
+                                <option value="">Todos os status</option>
+                                <option>Aberta</option>
+                                <option>Em execução</option>
+                                <option>Aguardando peça</option>
+                                <option>Concluída</option>
+                            </select><select class="input">
+                                <option>Todos os técnicos</option>
+                                <option>Marcos Ribeiro</option>
+                                <option>Ana Costa</option>
+                            </select><input class="input" type="date"></div>
+                        <div class="table-wrap">
+                            <table id="osTable">
+                                <thead>
+                                    <tr>
+                                        <th>OS</th>
+                                        <th>Cliente</th>
+                                        <th>Serviço</th>
+                                        <th>Status</th>
+                                        <th>Prioridade</th>
+                                        <th>Técnico</th>
+                                        <th>Agendamento</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-status="Aberta">
+                                        <td><b>#1042</b></td>
+                                        <td>Hospital São Lucas</td>
+                                        <td>Manutenção corretiva</td>
+                                        <td><span class="badge b-open">Aberta</span></td>
+                                        <td>Crítica</td>
+                                        <td>Marcos Ribeiro</td>
+                                        <td>22/05 · 09:00</td>
+                                        <td><button class="btn" onclick="openOS()">Detalhes</button></td>
+                                    </tr>
+                                    <tr data-status="Em execução">
+                                        <td><b>#1045</b></td>
+                                        <td>Indústria Beta</td>
+                                        <td>Manutenção preventiva</td>
+                                        <td><span class="badge b-progress">Em execução</span></td>
+                                        <td>Alta</td>
+                                        <td>Ana Costa</td>
+                                        <td>22/05 · 14:00</td>
+                                        <td><button class="btn" onclick="openOS()">Detalhes</button></td>
+                                    </tr>
+                                    <tr data-status="Aguardando peça">
+                                        <td><b>#1038</b></td>
+                                        <td>Condomínio Central</td>
+                                        <td>Substituição de placa</td>
+                                        <td><span class="badge b-wait">Aguardando peça</span></td>
+                                        <td>Média</td>
+                                        <td>—</td>
+                                        <td>23/05 · 10:00</td>
+                                        <td><button class="btn" onclick="openOS()">Detalhes</button></td>
+                                    </tr>
+                                    <tr data-status="Concluída">
+                                        <td><b>#1031</b></td>
+                                        <td>Escola Nova Era</td>
+                                        <td>Inspeção técnica</td>
+                                        <td><span class="badge b-done">Concluída</span></td>
+                                        <td>Baixa</td>
+                                        <td>Marcos Ribeiro</td>
+                                        <td>20/05 · 08:00</td>
+                                        <td><button class="btn" onclick="openOS()">Detalhes</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page" id="os-detail">
+                    <div class="page-head">
+                        <div><button class="btn" onclick="go('ordens')">← Voltar</button>
+                            <h1 style="margin-top:14px">OS #1042 — Hospital São Lucas</h1>
+                            <p>Manutenção corretiva · Aberta em 20/05/2026</p>
+                        </div>
+                        <div class="statusbar"><span class="badge b-late">Prazo vencido</span><button class="btn btn-primary" onclick="toast('Status atualizado para Em execução')">Iniciar atendimento</button></div>
+                    </div>
+                    <div class="tabs"><button class="tab active" data-tab="resumo">Resumo</button><button class="tab" data-tab="atividades">Atividades</button><button class="tab" data-tab="materiais">Materiais</button><button class="tab" data-tab="financeiro">Financeiro</button><button class="tab" data-tab="anexos">Anexos</button><button class="tab" data-tab="historico">Histórico</button></div>
+                    <div class="tab-panel active" id="tab-resumo">
+                        <div class="detail-grid">
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:16px">Dados do atendimento</div>
+                                <div class="info-grid">
+                                    <div class="field"><label>Cliente</label><div>Hospital São Lucas</div></div>
+                                    <div class="field"><label>Contato</label><div>João Martins · (11) 99999-0001</div></div>
+                                    <div class="field"><label>Local</label><div>Unidade Centro · Sala de máquinas</div></div>
+                                    <div class="field"><label>Responsável</label><div>Marcos Ribeiro</div></div>
+                                    <div class="field"><label>Agendamento</label><div>22/05/2026 · 09:00</div></div>
+                                    <div class="field"><label>Prazo/SLA</label><div style="color:var(--danger)">22/05/2026 · 11:00</div></div>
+                                    <div class="field"><label>Prioridade</label><div>Crítica</div></div>
+                                    <div class="field"><label>Contrato</label><div>CT-0045 · Manutenção anual</div></div>
+                                </div>
+                                <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+                                <div class="field"><label>Descrição da solicitação</label><div>Equipamento apresentou falha intermitente e desligamento inesperado. Solicita-se diagnóstico técnico e correção.</div></div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Resumo financeiro</div>
+                                <div class="kpi-value" style="font-size:25px">R$ 1.950,00</div>
+                                <div class="kpi-note">Valor estimado do atendimento</div>
+                                <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+                                <div style="display:flex;justify-content:space-between;margin:10px 0"><span>Serviços</span><b>R$ 1.500,00</b></div>
+                                <div style="display:flex;justify-content:space-between;margin:10px 0"><span>Materiais</span><b>R$ 450,00</b></div>
+                                <button class="btn" style="width:100%;justify-content:center;margin-top:12px" onclick="toast('Orçamento aberto')">Ver orçamento</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-atividades">
+                        <div class="card">
+                            <div class="card-head">
+                                <div class="card-title">Atividades da OS</div><button class="btn btn-primary" onclick="toast('Nova atividade adicionada')">＋ Registrar atividade</button>
+                            </div>
+                            <div class="timeline">
+                                <div class="event"><b>OS criada</b><br><small>20/05/2026 · 08:32 · por Maria Souza</small></div>
+                                <div class="event"><b>Técnico atribuído: Marcos Ribeiro</b><br><small>20/05/2026 · 08:45</small></div>
+                                <div class="event"><b>Atendimento agendado</b><br><small>22/05/2026 · 09:00</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-materiais">
+                        <div class="card">
+                            <div class="card-head">
+                                <div class="card-title">Materiais utilizados</div><button class="btn btn-primary" onclick="toast('Seleção de materiais aberta')">＋ Adicionar material</button>
+                            </div>
+                            <table>
+                                <thead><tr><th>Produto</th><th>Quantidade</th><th>Custo</th><th>Total</th><th></th></tr></thead>
+                                <tbody>
+                                    <tr><td>Sensor de Temperatura XYZ</td><td>2 un.</td><td>R$ 45,00</td><td><b>R$ 90,00</b></td><td><button class="btn btn-danger">Remover</button></td></tr>
+                                    <tr><td>Placa Controladora</td><td>1 un.</td><td>R$ 320,00</td><td><b>R$ 320,00</b></td><td><button class="btn btn-danger">Remover</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-financeiro">
+                        <div class="card">
+                            <div class="card-title">Faturamento e recebimento</div>
+                            <div class="info-grid" style="margin-top:18px">
+                                <div class="field"><label>Situação</label><div><span class="badge b-wait">Aguardando conclusão</span></div></div>
+                                <div class="field"><label>Valor previsto</label><div>R$ 1.950,00</div></div>
+                                <div class="field"><label>Condição</label><div>30 dias</div></div>
+                                <div class="field"><label>Previsão de faturamento</label><div>Após conclusão da OS</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-anexos">
+                        <div class="card">
+                            <div class="empty">Nenhum anexo cadastrado.<br><button class="btn" style="margin-top:12px" onclick="toast('Seleção de arquivo simulada')">Adicionar anexo</button></div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-historico">
+                        <div class="card">
+                            <div class="card-title">Histórico de alterações</div>
+                            <div class="timeline">
+                                <div class="event"><b>Prioridade alterada para Crítica</b><br><small>21/05/2026 · 16:20 · Maria Souza</small></div>
+                                <div class="event"><b>Prazo atualizado</b><br><small>21/05/2026 · 15:50 · Maria Souza</small></div>
+                                <div class="event"><b>OS criada</b><br><small>20/05/2026 · 08:32 · Maria Souza</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page" id="clientes">
+                    <div class="page-head">
+                        <div>
+                            <h1>Clientes</h1>
+                            <p>Cadastre e acompanhe empresas, contatos e unidades de atendimento.</p>
+                        </div><button class="btn btn-primary" onclick="toast('Cadastro de cliente aberto')">＋ Novo cliente</button>
+                    </div>
+                    <div class="card">
+                        <div class="filters"><input class="input search" placeholder="Buscar cliente, CNPJ ou cidade..."><select class="input"><option>Todos os clientes</option><option>Ativos</option><option>Inativos</option></select></div>
+                        <table>
+                            <thead><tr><th>Código</th><th>Cliente</th><th>Contato</th><th>Cidade</th><th>OS abertas</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td>C-001</td><td><b>Hospital São Lucas</b></td><td>João Martins</td><td>São Paulo/SP</td><td>4</td><td><button class="btn">Abrir</button></td></tr>
+                                <tr><td>C-002</td><td><b>Indústria Beta</b></td><td>Carla Mendes</td><td>Campinas/SP</td><td>2</td><td><button class="btn">Abrir</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="page" id="estoque">
+                    <div class="page-head">
+                        <div>
+                            <h1>Posição de Estoque</h1>
+                            <p>Consulte saldos, estoque mínimo e disponibilidade dos materiais.</p>
+                        </div><button class="btn btn-primary" onclick="toast('Cadastro de produto aberto')">＋ Novo produto</button>
+                    </div>
+                    <div class="kpis">
+                        <div class="kpi"><div class="kpi-top"><span>Itens cadastrados</span><span class="kpi-icon blue">▣</span></div><div class="kpi-value">286</div><div class="kpi-note">254 ativos</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Estoque crítico</span><span class="kpi-icon red">!</span></div><div class="kpi-value">5</div><div class="kpi-note">Abaixo do mínimo</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Sem saldo</span><span class="kpi-icon amber">0</span></div><div class="kpi-value">2</div><div class="kpi-note">Reposição necessária</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Valor em estoque</span><span class="kpi-icon green">R$</span></div><div class="kpi-value">R$ 84 mil</div><div class="kpi-note">Custo médio</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="filters"><input class="input search" placeholder="Buscar produto ou código..."><select class="input"><option>Todas as situações</option><option>Normal</option><option>Crítico</option><option>Sem saldo</option></select></div>
+                        <table>
+                            <thead><tr><th>Código</th><th>Produto</th><th>Saldo</th><th>Mínimo</th><th>Localização</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td>P-1001</td><td>Sensor de Temperatura XYZ</td><td>12</td><td>10</td><td>Prateleira A3</td><td><span class="badge b-progress">Normal</span></td></tr>
+                                <tr><td>P-1002</td><td>Placa Controladora</td><td>3</td><td>5</td><td>Armário B1</td><td><span class="badge b-late">Crítico</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="page" id="receber">
+                    <div class="page-head">
+                        <div><h1>Contas a Receber</h1><p>Acompanhe títulos, vencimentos e recebimentos vinculados aos serviços.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Novo lançamento aberto')">＋ Novo lançamento</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Título</th><th>Cliente</th><th>Origem</th><th>Vencimento</th><th>Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td>REC-2045</td><td>Hospital São Lucas</td><td>OS #1031</td><td>28/05/2026</td><td>R$ 4.500,00</td><td><span class="badge b-open">Em aberto</span></td></tr>
+                                <tr><td>REC-2038</td><td>Indústria Beta</td><td>OS #1027</td><td>18/05/2026</td><td>R$ 2.850,00</td><td><span class="badge b-late">Vencido</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="page" id="pagar">
+                    <div class="page-head">
+                        <div><h1>Contas a Pagar</h1><p>Controle despesas, fornecedores e compromissos financeiros.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Novo lançamento aberto')">＋ Nova despesa</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Título</th><th>Fornecedor</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td>PAG-1102</td><td>Fornecedor Alpha</td><td>Materiais</td><td>25/05/2026</td><td>R$ 7.200,00</td><td><span class="badge b-wait">A vencer</span></td></tr>
+                                <tr><td>PAG-1098</td><td>Energia Sul</td><td>Utilidades</td><td>17/05/2026</td><td>R$ 1.180,00</td><td><span class="badge b-late">Vencido</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="page" id="orcamentos">
+                    <div class="page-head">
+                        <div><h1>Orçamentos</h1><p>Crie propostas e acompanhe aprovações antes da abertura da OS.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Novo orçamento aberto')">＋ Novo orçamento</button>
+                    </div>
+                    <div class="card"><div class="empty">Módulo estruturado para criação, envio, aprovação e conversão do orçamento em Ordem de Serviço.</div></div>
+                </section>
+                <section class="page" id="agenda">
+                    <div class="page-head">
+                        <div><h1>Agenda Técnica</h1><p>Visualize atendimentos por dia, técnico e situação.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Novo agendamento aberto')">＋ Agendar atendimento</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Hoje · 22 de maio</div>
+                        <div class="timeline">
+                            <div class="event"><b>09:00 — OS #1042 · Hospital São Lucas</b><br><small>Marcos Ribeiro · Prioridade crítica</small></div>
+                            <div class="event"><b>14:00 — OS #1045 · Indústria Beta</b><br><small>Ana Costa · Manutenção preventiva</small></div>
+                            <div class="event"><b>16:30 — OS #1048 · Condomínio Central</b><br><small>Marcos Ribeiro · Vistoria técnica</small></div>
+                        </div>
+                    </div>
+                </section>
+                <section class="page" id="produtos">
+                    <div class="page-head">
+                        <div><h1>Produtos e Serviços</h1><p>Cadastre itens utilizados no atendimento e serviços comercializados.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Novo item aberto')">＋ Novo item</button>
+                    </div>
+                    <div class="card"><div class="empty">Catálogo centralizado de produtos, peças, serviços, custos, preços e unidades.</div></div>
+                </section>
+                <section class="page" id="tecnicos">
+                    <div class="page-head">
+                        <div><h1>Técnicos</h1><p>Gerencie equipes, especialidades, disponibilidade e produtividade.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Cadastro de técnico aberto')">＋ Novo técnico</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Nome</th><th>Especialidade</th><th>OS em execução</th><th>Disponibilidade</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td><b>Marcos Ribeiro</b></td><td>Automação industrial</td><td>3</td><td><span class="badge b-progress">Disponível</span></td><td><button class="btn">Perfil</button></td></tr>
+                                <tr><td><b>Ana Costa</b></td><td>Manutenção elétrica</td><td>2</td><td><span class="badge b-wait">Em atendimento</span></td><td><button class="btn">Perfil</button></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section class="page" id="movimentacoes">
+                    <div class="page-head">
+                        <div><h1>Movimentações de Estoque</h1><p>Rastreie entradas, saídas, reservas e ajustes de inventário.</p></div>
+                        <button class="btn btn-primary" onclick="toast('Nova movimentação aberta')">＋ Movimentar estoque</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Data</th><th>Tipo</th><th>Produto</th><th>Quantidade</th><th>Origem</th><th>Responsável</th></tr></thead>
+                            <tbody>
+                                <tr><td>22/05 · 08:20</td><td><span class="badge b-progress">Entrada</span></td><td>Sensor XYZ</td><td>+20</td><td>Compra PC-0089</td><td>Maria Souza</td></tr>
+                                <tr><td>21/05 · 16:10</td><td><span class="badge b-late">Saída</span></td><td>Placa Controladora</td><td>-1</td><td>OS #1042</td><td>Marcos Ribeiro</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section class="page" id="caixa">
+                    <div class="page-head">
+                        <div><h1>Fluxo de Caixa</h1><p>Analise entradas, saídas e saldo projetado.</p></div>
+                        <button class="btn" onclick="toast('Exportação simulada')">⇩ Exportar</button>
+                    </div>
+                    <div class="kpis">
+                        <div class="kpi"><div class="kpi-top"><span>Saldo atual</span><span class="kpi-icon green">R$</span></div><div class="kpi-value">R$ 84.250</div><div class="kpi-note">Disponível hoje</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Entradas do mês</span><span class="kpi-icon blue">↓</span></div><div class="kpi-value">R$ 126 mil</div><div class="kpi-note">Recebimentos confirmados</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Saídas do mês</span><span class="kpi-icon red">↑</span></div><div class="kpi-value">R$ 79 mil</div><div class="kpi-note">Pagamentos realizados</div></div>
+                        <div class="kpi"><div class="kpi-top"><span>Saldo projetado</span><span class="kpi-icon amber">≈</span></div><div class="kpi-value">R$ 96 mil</div><div class="kpi-note">Próximos 30 dias</div></div>
+                    </div>
+                </section>
+                <section class="page" id="relatorios">
+                    <div class="page-head"><div><h1>Relatórios</h1><p>Gere análises operacionais, financeiras e de desempenho.</p></div></div>
+                    <div class="card">
+                        <div class="info-grid"><button class="btn" onclick="toast('Relatório de OS gerado')">Ordens de Serviço</button><button class="btn" onclick="toast('Relatório financeiro gerado')">Financeiro</button><button class="btn" onclick="toast('Relatório de estoque gerado')">Estoque</button><button class="btn" onclick="toast('Relatório de técnicos gerado')">Produtividade técnica</button></div>
+                    </div>
+                </section>
+                <section class="page" id="config">
+                    <div class="page-head"><div><h1>Configurações</h1><p>Defina parâmetros da empresa, operação, notificações e permissões.</p></div></div>
+                    <div class="card"><div class="empty">Área preparada para dados da empresa, tipos de serviço, status, SLA, usuários e integrações.</div></div>
+                </section>
+                <!-- ================ FIM DO CONTEÚDO ORIGINAL ================ -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal (mantido igual) -->
+    <div class="modal-bg" id="modalBg">
+        <div class="modal">
+            <div class="modal-head">
+                <div>
+                    <h2 style="margin:0">Nova Ordem de Serviço</h2><small style="color:var(--muted)">Registre os dados iniciais do atendimento.</small>
+                </div><button class="icon-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label>Cliente *</label><select><option>Selecione o cliente</option><option>Hospital São Lucas</option><option>Indústria Beta</option></select></div>
+                <div class="form-group"><label>Unidade/local</label><input placeholder="Ex.: Unidade Centro"></div>
+                <div class="form-group"><label>Tipo de serviço *</label><select><option>Manutenção corretiva</option><option>Manutenção preventiva</option><option>Vistoria técnica</option></select></div>
+                <div class="form-group"><label>Prioridade</label><select><option>Média</option><option>Alta</option><option>Crítica</option></select></div>
+                <div class="form-group"><label>Técnico responsável</label><select><option>Não atribuído</option><option>Marcos Ribeiro</option><option>Ana Costa</option></select></div>
+                <div class="form-group"><label>Agendamento</label><input type="datetime-local"></div>
+                <div class="form-group full"><label>Descrição da solicitação *</label><textarea rows="4" placeholder="Descreva o problema ou serviço solicitado..."></textarea></div>
+            </div>
+            <div class="form-actions"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createOS()">Criar Ordem de Serviço</button></div>
+        </div>
+    </div>
+    <div id="toast" style="position:fixed;right:22px;bottom:22px;background:#0f172a;color:#fff;padding:13px 17px;border-radius:10px;box-shadow:0 12px 35px rgba(0,0,0,.25);display:none;z-index:200"></div>
+
+    <script>
+        (function () {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            const crumb = document.getElementById('crumb');
+
+            const labels = {
+                dashboard: 'Dashboard',
+                ordens: 'Ordens de Serviço',
+                clientes: 'Clientes',
+                estoque: 'Posição de Estoque',
+                receber: 'Contas a Receber',
+                pagar: 'Contas a Pagar',
+                orcamentos: 'Orçamentos',
+                agenda: 'Agenda Técnica',
+                produtos: 'Produtos e Serviços',
+                tecnicos: 'Técnicos',
+                movimentacoes: 'Movimentações',
+                caixa: 'Fluxo de Caixa',
+                relatorios: 'Relatórios',
+                config: 'Configurações',
+                'os-detail': 'Detalhes da OS'
+            };
+
+            // Navegação
+            document.querySelectorAll('.nav-btn[data-page]').forEach(b => {
+                b.addEventListener('click', () => go(b.dataset.page));
+            });
+
+            function go(id) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                const target = document.getElementById(id);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+                crumb.textContent = labels[id] || id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (window.innerWidth <= 1050) toggleMenu(false);
+            }
+
+            function openOS() { go('os-detail'); }
+
+            // CORREÇÃO: função toggleMenu unificada
+            function toggleMenu(force) {
+                const isOpen = force !== undefined ? force : !sidebar.classList.contains('open');
+                sidebar.classList.toggle('open', isOpen);
+                overlay.classList.toggle('show', isOpen);
+                menuToggle.classList.toggle('is-open', isOpen);
+                menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            }
+
+            // Event listeners
+            menuToggle.addEventListener('click', () => toggleMenu());
+            sidebarCloseBtn.addEventListener('click', () => toggleMenu(false));
+            overlay.addEventListener('click', () => toggleMenu(false));
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    if (sidebar.classList.contains('open')) toggleMenu(false);
+                    closeModal();
+                }
+            });
+
+            // Fecha menu ao redimensionar para desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 1050 && sidebar.classList.contains('open')) {
+                    toggleMenu(false);
+                }
+            });
+
+            // Modal
+            function openModal() { document.getElementById('modalBg').classList.add('show'); }
+            function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+            function createOS() { closeModal(); toast('OS #1049 criada com sucesso'); go('ordens'); }
+
+            // Toast
+            let timer;
+            function toast(t) {
+                const e = document.getElementById('toast');
+                e.textContent = t;
+                e.style.display = 'block';
+                clearTimeout(timer);
+                timer = setTimeout(() => e.style.display = 'none', 2600);
+            }
+
+            // Tabs
+            document.querySelectorAll('.tab').forEach(t => {
+                t.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+                    t.classList.add('active');
+                    const targetTab = document.getElementById('tab-' + t.dataset.tab);
+                    if (targetTab) targetTab.classList.add('active');
+                });
+            });
+
+            // Filtro OS
+            function filterOS() {
+                const q = document.getElementById('osSearch')?.value.toLowerCase() || '';
+                const s = document.getElementById('statusFilter')?.value || '';
+                document.querySelectorAll('#osTable tbody tr').forEach(r => {
+                    const matchText = !q || r.textContent.toLowerCase().includes(q);
+                    const matchStatus = !s || r.dataset.status === s;
+                    r.style.display = (matchText && matchStatus) ? '' : 'none';
+                });
+            }
+
+            // Expor funções globais para onclick inline
+            window.toggleMenu = toggleMenu;
+            window.openOS = openOS;
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+            window.createOS = createOS;
+            window.toast = toast;
+            window.go = go;
+            window.filterOS = filterOS;
+        })();
+    </script>
+</body>
+</html>

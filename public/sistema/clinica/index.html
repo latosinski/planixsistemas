@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClinicPro - Sistema de Gestão para Clínicas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<style>
+:root {
+    --primary: #7FB3D5;
+    --primary-dark: #5D9BC5;
+    --secondary: #A8D5BA;
+    --accent: #F7B7A3;
+    --accent2: #C9B1FF;
+    --accent3: #FFE4B5;
+    --bg: #F8FAFB;
+    --surface: #FFFFFF;
+    --text: #2D3748;
+    --text-light: #718096;
+    --text-muted: #A0AEC0;
+    --border: #E2E8F0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --sidebar-width: 260px;
+    --header-height: 68px;
+    --overlay-bg: rgba(0,0,0,0.4);
+}
+
+/* ===== DARK MODE ===== */
+[data-theme="dark"] {
+    --primary: #7FB3D5;
+    --primary-dark: #8FC4E0;
+    --secondary: #A8D5BA;
+    --accent: #F7B7A3;
+    --accent2: #C9B1FF;
+    --accent3: #FFE4B5;
+    --bg: #0F1419;
+    --surface: #1A2332;
+    --text: #E2E8F0;
+    --text-light: #A0AEC0;
+    --text-muted: #718096;
+    --border: #2D3748;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+    --overlay-bg: rgba(0,0,0,0.6);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+.logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    flex: 1;
+}
+.logo-text span { color: var(--primary); }
+
+.sidebar-close-btn {
+    display: none;
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-light);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s;
+}
+.sidebar-close-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.nav-section {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 1rem 0.75rem 0.5rem;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.65rem 0.875rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+}
+.nav-item:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(127,179,213,0.15), rgba(168,213,186,0.15));
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+.nav-item i {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+}
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+}
+.user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+.user-info { overflow: hidden; }
+.user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+.user-role { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ===== MAIN CONTENT ===== */
+.main-wrapper {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+/* ===== HEADER ===== */
+.header {
+    position: sticky;
+    top: 0;
+    height: var(--header-height);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 100;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.menu-toggle {
+    display: none;
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+.page-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.breadcrumb {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.header-btn {
+    width: 38px; height: 38px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    position: relative;
+}
+.header-btn:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--primary);
+}
+.header-btn .dot {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+}
+
+/* ===== CONTENT AREA ===== */
+.content {
+    padding: 1.5rem;
+}
+.secao-conteudo {
+    display: none;
+}
+.secao-conteudo.ativa {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-light);
+}
+.date-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s, background-color 0.3s ease;
+}
+.date-input:focus { border-color: var(--primary); }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    box-shadow: 0 2px 8px rgba(127,179,213,0.3);
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(127,179,213,0.4);
+}
+.btn-outline {
+    background: var(--surface);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+}
+.btn-outline:hover {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--primary);
+}
+.btn-success {
+    background: linear-gradient(135deg, #81C784, #66BB6A);
+    color: white;
+}
+.btn-danger {
+    background: linear-gradient(135deg, #EF9A9A, #E57373);
+    color: white;
+}
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+/* ===== CARDS GRID ===== */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    border-radius: var(--radius) 0 0 var(--radius);
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+}
+.stat-card.blue::before { background: var(--primary); }
+.stat-card.green::before { background: var(--secondary); }
+.stat-card.orange::before { background: var(--accent); }
+.stat-card.purple::before { background: var(--accent2); }
+.stat-card.yellow::before { background: var(--accent3); }
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+.stat-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+.stat-card.blue .stat-icon { background: rgba(127,179,213,0.12); color: var(--primary); }
+.stat-card.green .stat-icon { background: rgba(168,213,186,0.12); color: #66BB6A; }
+.stat-card.orange .stat-icon { background: rgba(247,183,163,0.12); color: #E57373; }
+.stat-card.purple .stat-icon { background: rgba(201,177,255,0.12); color: #AB47BC; }
+.stat-card.yellow .stat-icon { background: rgba(255,228,181,0.12); color: #FFA726; }
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+.stat-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+/* ===== CHARTS SECTION ===== */
+.section-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.panel-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.panel-body {
+    padding: 1.5rem;
+}
+.chart-placeholder {
+    height: 280px;
+    background: linear-gradient(135deg, rgba(127,179,213,0.05), rgba(168,213,186,0.05));
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--text-muted);
+    border: 2px dashed var(--border);
+}
+.chart-placeholder i { font-size: 2.5rem; opacity: 0.5; }
+.chart-placeholder p { font-size: 0.9rem; }
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.activity-item {
+    display: flex;
+    gap: 0.875rem;
+    align-items: flex-start;
+}
+.activity-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+.activity-icon.consulta { background: rgba(127,179,213,0.12); color: var(--primary); }
+.activity-icon.paciente { background: rgba(168,213,186,0.12); color: #66BB6A; }
+.activity-icon.financeiro { background: rgba(247,183,163,0.12); color: #E57373; }
+.activity-icon.estoque { background: rgba(201,177,255,0.12); color: #AB47BC; }
+.activity-content { flex: 1; }
+.activity-text { font-size: 0.85rem; color: var(--text); font-weight: 500; line-height: 1.4; }
+.activity-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+/* ===== TABLE SECTION ===== */
+.table-responsive {
+    overflow-x: auto;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.data-table td {
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.data-table tr:hover td { background: rgba(127,179,213,0.03); }
+[data-theme="dark"] .data-table tr:hover td { background: rgba(127,179,213,0.08); }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-agendada { background: rgba(127,179,213,0.12); color: var(--primary-dark); }
+.status-concluida { background: rgba(168,213,186,0.15); color: #388E3C; }
+.status-cancelada { background: rgba(239,154,154,0.15); color: #D32F2F; }
+.status-pendente { background: rgba(255,228,181,0.3); color: #F57C00; }
+.status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+}
+.status-agendada .status-dot { background: var(--primary-dark); }
+.status-concluida .status-dot { background: #388E3C; }
+.status-cancelada .status-dot { background: #D32F2F; }
+.status-pendente .status-dot { background: #F57C00; }
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.pagination {
+    display: flex;
+    gap: 0.25rem;
+}
+.page-btn {
+    min-width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.page-btn:hover { background: var(--bg); color: var(--text); }
+.page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===== MOBILE SIDEBAR OVERLAY ===== */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay-bg);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 991px) {
+    .section-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: var(--sidebar-width);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .sidebar-close-btn {
+        display: flex;
+    }
+    .main-wrapper {
+        margin-left: 0;
+    }
+    .menu-toggle {
+        display: flex;
+    }
+    .header {
+        padding: 0 1rem;
+    }
+    .content {
+        padding: 1rem;
+    }
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .date-input { width: 100%; }
+    .table-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .pagination {
+        justify-content: center;
+    }
+    .page-title {
+        font-size: 1.1rem;
+    }
+    .panel-header {
+        padding: 1rem;
+    }
+    .panel-body {
+        padding: 1rem;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (min-width: 1400px) {
+    .cards-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    .section-grid {
+        grid-template-columns: 3fr 1fr;
+    }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* FAB mobile */
+.fab {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(127,179,213,0.4);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    z-index: 500;
+    transition: all 0.3s ease;
+}
+.fab:hover { transform: scale(1.05); }
+@media (max-width: 767px) {
+    .fab { display: flex; }
+}
+</style>
+<body>
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu principal">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
+            <div class="logo-text">Clinic<span>Pro</span></div>
+            <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">Principal</div>
+            <button class="nav-item active" data-section="dashboard">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-section="agenda">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Agenda</span>
+            </button>
+
+            <div class="nav-section">Cadastros</div>
+            <button class="nav-item" data-section="consultas">
+                <i class="fas fa-stethoscope"></i>
+                <span>Cadastro de Consultas</span>
+            </button>
+            <button class="nav-item" data-section="clientes">
+                <i class="fas fa-users"></i>
+                <span>Clientes / Pacientes</span>
+            </button>
+            <button class="nav-item" data-section="profissionais">
+                <i class="fas fa-user-md"></i>
+                <span>Profissionais de Saúde</span>
+            </button>
+            <button class="nav-item" data-section="planos">
+                <i class="fas fa-id-card"></i>
+                <span>Planos de Saúde</span>
+            </button>
+            <button class="nav-item" data-section="usuarios">
+                <i class="fas fa-user-shield"></i>
+                <span>Usuários do Sistema</span>
+            </button>
+            <button class="nav-item" data-section="especialidades">
+                <i class="fas fa-notes-medical"></i>
+                <span>Especialidades Médicas</span>
+            </button>
+
+            <div class="nav-section">Financeiro & Estoque</div>
+            <button class="nav-item" data-section="fluxo-caixa">
+                <i class="fas fa-cash-register"></i>
+                <span>Fluxo de Caixa</span>
+            </button>
+            <button class="nav-item" data-section="contas-pagar-receber">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Contas a Pagar e Receber</span>
+            </button>
+            <button class="nav-item" data-section="estoque">
+                <i class="fas fa-warehouse"></i>
+                <span>Controle de Estoque</span>
+            </button>
+            <button class="nav-item" data-section="repasses-medicos">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Repasses Médicos</span>
+            </button>
+
+            <div class="nav-section">Sistema</div>
+            <button class="nav-item" data-section="ajuda">
+                <i class="fas fa-question-circle"></i>
+                <span>Orientação e Ajuda</span>
+            </button>
+            <button class="nav-item" data-section="sobre">
+                <i class="fas fa-info-circle"></i>
+                <span>Sobre o Sistema</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-card">
+                <div class="user-avatar">DR</div>
+                <div class="user-info">
+                    <div class="user-name">Sua Clínica</div>
+                    <div class="user-role">Administração</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="page-title" id="pageTitle">Dashboard</div>
+                    <div class="breadcrumb" id="breadcrumb">Início / Dashboard</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" title="Nova Consulta" id="btnNovaConsultaHeader">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="header-btn" title="Notificações">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot"></span>
+                </button>
+                <!-- Dark mode toggle (substitui o ícone de engrenagem) -->
+                <button class="header-btn" id="themeToggle" title="Alternar tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="conteudoPrincipal">
+            <!-- DASHBOARD -->
+            <section id="secao-dashboard" class="secao-conteudo ativa">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <span class="filter-label"><i class="fas fa-calendar"></i> Período:</span>
+                        <input type="date" class="date-input" id="dataInicio" value="">
+                        <span style="color: var(--text-muted);">até</span>
+                        <input type="date" class="date-input" id="dataFim" value="">
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-outline btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        </div>
+                        <div class="stat-value">—</div>
+                        <div class="stat-label">Consultas do Mês</div>
+                        <div class="stat-sub">Nenhuma consulta registrada</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Pacientes Ativos</div>
+                        <div class="stat-sub">Nenhum paciente cadastrado</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                        </div>
+                        <div class="stat-value">R$ 0,00</div>
+                        <div class="stat-label">Faturamento do Mês</div>
+                        <div class="stat-sub">Nenhum faturamento</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                        </div>
+                        <div class="stat-value">—</div>
+                        <div class="stat-label">Itens em Baixa</div>
+                        <div class="stat-sub">Controle de estoque</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+                        </div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Profissionais Ativos</div>
+                        <div class="stat-sub">Nenhum profissional cadastrado</div>
+                    </div>
+                </div>
+
+                <div class="section-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fas fa-chart-area" style="margin-right: 0.5rem; color: var(--primary);"></i>
+                                Faturamento vs Consultas
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-line"></i>
+                                <p>Gráfico de Faturamento Mensal</p>
+                                <span style="font-size: 0.8rem;">Integração com Chart.js recomendada</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fas fa-bolt" style="margin-right: 0.5rem; color: var(--accent);"></i>
+                                Atividades Recentes
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="activity-list" id="listaAtividades">
+                                <p style="color: var(--text-muted); text-align: center;">Nenhuma atividade recente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-list-alt" style="margin-right: 0.5rem; color: var(--secondary);"></i>
+                            Consultas do Dia
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="btnNovaConsultaDashboard">
+                            <i class="fas fa-plus"></i> Nova Consulta
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Paciente</th>
+                                    <th>Profissional</th>
+                                    <th>Horário</th>
+                                    <th>Tipo</th>
+                                    <th>Status</th>
+                                    <th>Valor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoTabelaDashboard">
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding:2rem;">Nenhuma consulta registrada.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <span style="font-size: 0.85rem; color: var(--text-light);">Mostrando 0 registros</span>
+                        <div class="pagination">
+                            <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DEMAIS SEÇÕES -->
+            <section id="secao-agenda" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-calendar-alt" style="margin-right: 0.5rem; color: var(--primary);"></i>Agenda</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-consultas" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-stethoscope" style="margin-right: 0.5rem; color: var(--primary);"></i>Cadastro de Consultas</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-clientes" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-users" style="margin-right: 0.5rem; color: var(--primary);"></i>Clientes / Pacientes</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-profissionais" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-user-md" style="margin-right: 0.5rem; color: var(--primary);"></i>Profissionais de Saúde</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-planos" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-id-card" style="margin-right: 0.5rem; color: var(--primary);"></i>Planos de Saúde</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-usuarios" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-user-shield" style="margin-right: 0.5rem; color: var(--primary);"></i>Usuários do Sistema</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-especialidades" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-notes-medical" style="margin-right: 0.5rem; color: var(--primary);"></i>Especialidades Médicas</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-fluxo-caixa" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-cash-register" style="margin-right: 0.5rem; color: var(--primary);"></i>Fluxo de Caixa</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-contas-pagar-receber" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-file-invoice-dollar" style="margin-right: 0.5rem; color: var(--primary);"></i>Contas a Pagar e Receber</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-estoque" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-warehouse" style="margin-right: 0.5rem; color: var(--primary);"></i>Controle de Estoque</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-repasses-medicos" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-hand-holding-usd" style="margin-right: 0.5rem; color: var(--primary);"></i>Repasses Médicos</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-ajuda" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-question-circle" style="margin-right: 0.5rem; color: var(--primary);"></i>Orientação e Ajuda</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="secao-sobre" class="secao-conteudo">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-info-circle" style="margin-right: 0.5rem; color: var(--primary);"></i>Sobre o Sistema</div>
+                    </div>
+                    <div class="panel-body">
+                        <p style="color: var(--text-muted); text-align: center;">Conteúdo será carregado a partir do banco de dados.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- FAB mobile (opcional) -->
+    <button class="fab" id="fabNovaConsulta" title="Nova Consulta" aria-label="Nova Consulta">
+        <i class="fas fa-plus"></i>
+    </button>
+
+<script>
+(function () {
+    'use strict';
+
+    // ===== ELEMENTOS =====
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const pageTitle = document.getElementById('pageTitle');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const navItems = document.querySelectorAll('.nav-item[data-section]');
+
+    // ===== MAPA DE TÍTULOS =====
+    const titulos = {
+        'dashboard': { title: 'Dashboard', breadcrumb: 'Início / Dashboard' },
+        'agenda': { title: 'Agenda', breadcrumb: 'Início / Agenda' },
+        'consultas': { title: 'Cadastro de Consultas', breadcrumb: 'Cadastros / Consultas' },
+        'clientes': { title: 'Clientes / Pacientes', breadcrumb: 'Cadastros / Clientes' },
+        'profissionais': { title: 'Profissionais de Saúde', breadcrumb: 'Cadastros / Profissionais' },
+        'planos': { title: 'Planos de Saúde', breadcrumb: 'Cadastros / Planos' },
+        'usuarios': { title: 'Usuários do Sistema', breadcrumb: 'Cadastros / Usuários' },
+        'especialidades': { title: 'Especialidades Médicas', breadcrumb: 'Cadastros / Especialidades' },
+        'fluxo-caixa': { title: 'Fluxo de Caixa', breadcrumb: 'Financeiro / Fluxo de Caixa' },
+        'contas-pagar-receber': { title: 'Contas a Pagar e Receber', breadcrumb: 'Financeiro / Contas' },
+        'estoque': { title: 'Controle de Estoque', breadcrumb: 'Estoque / Controle' },
+        'repasses-medicos': { title: 'Repasses Médicos', breadcrumb: 'Financeiro / Repasses' },
+        'ajuda': { title: 'Orientação e Ajuda', breadcrumb: 'Sistema / Ajuda' },
+        'sobre': { title: 'Sobre o Sistema', breadcrumb: 'Sistema / Sobre' }
+    };
+
+    // ===== SIDEBAR MOBILE =====
+    function openSidebar() {
+        sidebar.classList.add('open');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // evita scroll do body
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function toggleSidebar() {
+        if (sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+
+    if (menuToggle) menuToggle.addEventListener('click', toggleSidebar);
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // Fecha com tecla ESC
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeSidebar();
+        }
+    });
+
+    // ===== NAVEGAÇÃO ENTRE SEÇÕES =====
+    function mostrarSecao(sectionId) {
+        // Esconde todas as seções
+        document.querySelectorAll('.secao-conteudo').forEach(function (sec) {
+            sec.classList.remove('ativa');
+        });
+
+        // Mostra a seção desejada
+        const secao = document.getElementById('secao-' + sectionId);
+        if (secao) {
+            secao.classList.add('ativa');
+        }
+
+        // Atualiza item ativo no menu
+        navItems.forEach(function (item) {
+            item.classList.toggle('active', item.getAttribute('data-section') === sectionId);
+        });
+
+        // Atualiza título e breadcrumb
+        const info = titulos[sectionId] || { title: sectionId, breadcrumb: 'Início / ' + sectionId };
+        if (pageTitle) pageTitle.textContent = info.title;
+        if (breadcrumb) breadcrumb.textContent = info.breadcrumb;
+
+        // Fecha sidebar no mobile após clicar em um item
+        if (window.innerWidth <= 767) {
+            closeSidebar();
+        }
+    }
+
+    navItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            const section = this.getAttribute('data-section');
+            if (section) mostrarSecao(section);
+        });
+    });
+
+    // ===== DARK MODE =====
+    function aplicarTema(tema) {
+        document.documentElement.setAttribute('data-theme', tema);
+        localStorage.setItem('clinicpro-theme', tema);
+
+        if (themeIcon) {
+            if (tema === 'dark') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+    }
+
+    function toggleTema() {
+        const atual = document.documentElement.getAttribute('data-theme') || 'light';
+        const novo = atual === 'dark' ? 'light' : 'dark';
+        aplicarTema(novo);
+    }
+
+    // Carrega tema salvo (ou preferência do sistema)
+    (function initTheme() {
+        const salvo = localStorage.getItem('clinicpro-theme');
+        if (salvo) {
+            aplicarTema(salvo);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            aplicarTema('dark');
+        } else {
+            aplicarTema('light');
+        }
+    })();
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTema);
+    }
+
+    // ===== REDIMENSIONAMENTO =====
+    // Se a tela voltar para desktop, garante que a sidebar não fique "travada" aberta
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 767) {
+            closeSidebar();
+        }
+    });
+
+})();
+</script>
+</body>
+</html>

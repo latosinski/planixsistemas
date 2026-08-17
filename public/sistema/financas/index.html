@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceHub - Dashboard Financeiro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --bg-main: #0f172a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #f59e0b;
+            --accent-cyan: #06b6d4;
+            --border: #334155;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: overflow 0s; /* Para evitar travamento do scroll */
+        }
+
+        /* ===== OVERLAY (mobile) ===== */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: transform var(--transition);
+        }
+
+        /* Botão X (fechar sidebar) */
+        .sidebar-close-btn {
+            display: none; /* escondido em desktop */
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 1.3rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding: 0 8px;
+            position: relative; /* para posicionar o botão X */
+        }
+
+        .sidebar-logo .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+        .sidebar-logo span {
+            color: var(--accent-cyan);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        .sidebar-nav a.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 var(--accent-blue);
+        }
+        .sidebar-nav a .icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+        .sidebar-footer .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+        .sidebar-footer .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .sidebar-footer .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .sidebar-footer .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 28px 32px;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+
+        /* ===== HAMBURGER BUTTON ===== */
+        .menu-toggle {
+            display: none; /* escondido em desktop */
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 10px;
+            place-items: center;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .menu-toggle:hover {
+            background: #334155;
+        }
+        .menu-toggle.is-open {
+            background: #334155;
+            transform: rotate(90deg);
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .page-header-text {
+            flex: 1;
+        }
+        .page-header-text h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+        }
+        .page-header-text p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        /* TOP ROW CARDS */
+        .cards-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+            transition: transform var(--transition), box-shadow var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        .card .card-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .card .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .card .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .card .card-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .card .card-change.positive {
+            color: var(--accent-green);
+        }
+        .card .card-change.negative {
+            color: var(--accent-red);
+        }
+
+        .icon-bg-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+        .icon-bg-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+        }
+        .icon-bg-yellow {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-yellow);
+        }
+        .icon-bg-purple {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+        }
+
+        /* CHARTS ROW */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* BOTTOM ROW */
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 18px;
+        }
+
+        /* TABLE */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+        .table-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        table th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            vertical-align: middle;
+        }
+        table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        /* METAS CARD */
+        .goals-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+        .goals-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+        .goal-item {
+            margin-bottom: 16px;
+        }
+        .goal-item:last-child {
+            margin-bottom: 0;
+        }
+        .goal-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+        .goal-info .goal-name {
+            font-weight: 500;
+        }
+        .goal-info .goal-percent {
+            color: var(--text-secondary);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        .fill-blue {
+            background: var(--accent-blue);
+        }
+        .fill-green {
+            background: var(--accent-green);
+        }
+        .fill-purple {
+            background: var(--accent-purple);
+        }
+        .fill-yellow {
+            background: var(--accent-yellow);
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 1200px) {
+            .cards-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            .bottom-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Sidebar escondida por padrão */
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 100;
+                /* sem top, usa o inset completo */
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Main content ocupa toda a largura */
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+            }
+
+            /* Exibe o botão hamburger */
+            .menu-toggle {
+                display: inline-grid;
+            }
+
+            /* Exibe o botão X dentro da sidebar */
+            .sidebar-close-btn {
+                display: flex;
+            }
+
+            /* Ajusta cards */
+            .cards-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .card .card-value {
+                font-size: 1.4rem;
+            }
+
+            /* Ajusta header */
+            .page-header {
+                flex-direction: row;
+                align-items: center;
+            }
+            .page-header-text h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-row {
+                grid-template-columns: 1fr;
+            }
+            .card .card-value {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Pulse animation for live indicator */
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Botão X para fechar (aparece no mobile) -->
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu">×</button>
+
+        <div class="sidebar-logo">
+            <div class="logo-icon">F$</div>
+            <h1>Finance<span>Hub</span></h1>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="active"><span class="icon">📊</span> Dashboard</a>
+            <a href="#"><span class="icon">💰</span> Receitas</a>
+            <a href="#"><span class="icon">💳</span> Despesas</a>
+            <a href="#"><span class="icon">📈</span> Investimentos</a>
+            <a href="#"><span class="icon">🏦</span> Cartões</a>
+            <a href="#"><span class="icon">📋</span> Dívidas</a>
+            <a href="#"><span class="icon">🎯</span> Metas</a>
+            <a href="#"><span class="icon">📅</span> Projeção</a>
+            <a href="#"><span class="icon">📄</span> Relatórios</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">MF</div>
+                <div>
+                    <div class="user-name">Maria Fernandes</div>
+                    <div class="user-role">Cliente Premium</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="page-header">
+            <!-- Botão hamburger (aparece no mobile) -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
+                ☰
+            </button>
+            <div class="page-header-text">
+                <h2>Dashboard Financeiro</h2>
+                <p><span class="live-dot"></span>Dados atualizados em tempo real • Agosto 2026</p>
+            </div>
+        </div>
+
+        <!-- TOP CARDS: Indicadores Chave -->
+        <div class="cards-row">
+            <!-- Saldo Mensal -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-label">Saldo Mensal</span>
+                    <span class="card-icon icon-bg-blue">💵</span>
+                </div>
+                <div class="card-value">R$ 8.450,00</div>
+                <span class="card-change positive">↑ 12,3% vs. mês anterior</span>
+            </div>
+
+            <!-- Economia do Mês -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-label">Economia do Mês</span>
+                    <span class="card-icon icon-bg-green">🐷</span>
+                </div>
+                <div class="card-value">R$ 3.120,00</div>
+                <span class="card-change positive">↑ 24,5% vs. meta</span>
+            </div>
+
+            <!-- Percentual da Renda Comprometida -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-label">Renda Comprometida</span>
+                    <span class="card-icon icon-bg-yellow">⚠️</span>
+                </div>
+                <div class="card-value">38,2%</div>
+                <span class="card-change negative">Limite ideal: 40%</span>
+            </div>
+
+            <!-- Reserva de Emergência -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-label">Reserva de Emergência</span>
+                    <span class="card-icon icon-bg-purple">🛡️</span>
+                </div>
+                <div class="card-value">R$ 28.500,00</div>
+                <span class="card-change positive">4,2 meses de cobertura</span>
+            </div>
+        </div>
+
+        <!-- CHARTS: Distribuição de Gastos + Evolução do Patrimônio -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>📊 Distribuição dos Gastos por Categoria</h3>
+                <div class="chart-container">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>📈 Evolução do Patrimônio (últimos 6 meses)</h3>
+                <div class="chart-container">
+                    <canvas id="patrimonioChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM: Últimas transações + Metas Financeiras -->
+        <div class="bottom-row">
+            <!-- Tabela de últimas transações -->
+            <div class="table-card">
+                <h3>🕐 Últimas Transações</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>14/08/2026</td>
+                                <td>Salário Empresa X</td>
+                                <td>Receita</td>
+                                <td style="color:#34d399;font-weight:600;">+R$ 12.500,00</td>
+                                <td><span class="badge badge-success">Recebido</span></td>
+                            </tr>
+                            <tr>
+                                <td>13/08/2026</td>
+                                <td>Aluguel</td>
+                                <td>Moradia</td>
+                                <td style="color:#f87171;font-weight:600;">-R$ 2.800,00</td>
+                                <td><span class="badge badge-danger">Pago</span></td>
+                            </tr>
+                            <tr>
+                                <td>12/08/2026</td>
+                                <td>Supermercado</td>
+                                <td>Alimentação</td>
+                                <td style="color:#f87171;font-weight:600;">-R$ 1.250,00</td>
+                                <td><span class="badge badge-danger">Pago</span></td>
+                            </tr>
+                            <tr>
+                                <td>10/08/2026</td>
+                                <td>Freelance Design</td>
+                                <td>Receita Extra</td>
+                                <td style="color:#34d399;font-weight:600;">+R$ 2.200,00</td>
+                                <td><span class="badge badge-success">Recebido</span></td>
+                            </tr>
+                            <tr>
+                                <td>08/08/2026</td>
+                                <td>Fatura Cartão Nubank</td>
+                                <td>Cartão de Crédito</td>
+                                <td style="color:#f87171;font-weight:600;">-R$ 3.400,00</td>
+                                <td><span class="badge badge-warning">Pendente</span></td>
+                            </tr>
+                            <tr>
+                                <td>05/08/2026</td>
+                                <td>Investimento CDB</td>
+                                <td>Investimentos</td>
+                                <td style="color:#f87171;font-weight:600;">-R$ 2.000,00</td>
+                                <td><span class="badge badge-success">Aplicado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Metas Financeiras -->
+            <div class="goals-card">
+                <h3>🎯 Metas Financeiras</h3>
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-name">Reserva de Emergência</span>
+                        <span class="goal-percent">71%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-blue" style="width:71%;"></div>
+                    </div>
+                    <div class="goal-info" style="margin-top:3px;">
+                        <span style="font-size:0.7rem;color:#94a3b8;">R$ 28.500 / R$ 40.000</span>
+                    </div>
+                </div>
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-name">Viagem para Europa</span>
+                        <span class="goal-percent">45%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-green" style="width:45%;"></div>
+                    </div>
+                    <div class="goal-info" style="margin-top:3px;">
+                        <span style="font-size:0.7rem;color:#94a3b8;">R$ 13.500 / R$ 30.000</span>
+                    </div>
+                </div>
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-name">Entrada Apartamento</span>
+                        <span class="goal-percent">22%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-purple" style="width:22%;"></div>
+                    </div>
+                    <div class="goal-info" style="margin-top:3px;">
+                        <span style="font-size:0.7rem;color:#94a3b8;">R$ 22.000 / R$ 100.000</span>
+                    </div>
+                </div>
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-name">Curso de Especialização</span>
+                        <span class="goal-percent">90%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-yellow" style="width:90%;"></div>
+                    </div>
+                    <div class="goal-info" style="margin-top:3px;">
+                        <span style="font-size:0.7rem;color:#94a3b8;">R$ 7.200 / R$ 8.000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ===== DOUGHNUT CHART: Distribuição de Gastos por Categoria =====
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Moradia', 'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Cartão de Crédito',
+                    'Investimentos', 'Outros'
+                ],
+                datasets: [{
+                    data: [2800, 1950, 850, 1200, 650, 3400, 2000, 550],
+                    backgroundColor: [
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                        '#06b6d4', '#ec4899', '#64748b'
+                    ],
+                    borderColor: '#1e293b',
+                    borderWidth: 3,
+                    hoverBorderColor: '#334155',
+                    hoverBorderWidth: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#cbd5e1',
+                            padding: 16,
+                            font: { size: 12 },
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const percent = ((ctx.raw / total) * 100).toFixed(1);
+                                return ` R$ ${ctx.raw.toLocaleString('pt-BR')} (${percent}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%',
+            }
+        });
+
+        // ===== LINE CHART: Evolução do Patrimônio =====
+        const patrimonioCtx = document.getElementById('patrimonioChart').getContext('2d');
+        const gradientLine = patrimonioCtx.createLinearGradient(0, 0, 0, 280);
+        gradientLine.addColorStop(0, 'rgba(59,130,246,0.4)');
+        gradientLine.addColorStop(1, 'rgba(59,130,246,0.0)');
+
+        new Chart(patrimonioCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'],
+                datasets: [{
+                    label: 'Patrimônio Total',
+                    data: [72000, 74500, 76800, 78200, 81000, 84500],
+                    borderColor: '#3b82f6',
+                    backgroundColor: gradientLine,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#1e293b',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                }, {
+                    label: 'Reserva de Emergência',
+                    data: [20000, 21500, 23000, 24800, 26500, 28500],
+                    borderColor: '#10b981',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#1e293b',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    borderDash: [6, 3],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 12 },
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ` ${ctx.dataset.label}: R$ ${ctx.raw.toLocaleString('pt-BR')}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 18000,
+                        grid: { color: 'rgba(51,65,85,0.4)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: v => 'R$ ' + (v / 1000).toFixed(0) + 'k',
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                }
+            }
+        });
+
+        // ===== MENU MOBILE =====
+        (function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+            function toggleMenu(force) {
+                const isOpen = force !== undefined ? force : !sidebar.classList.contains('open');
+                sidebar.classList.toggle('open', isOpen);
+                overlay.classList.toggle('active', isOpen);
+                menuToggle.classList.toggle('is-open', isOpen);
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            }
+
+            menuToggle.addEventListener('click', () => toggleMenu());
+            sidebarCloseBtn.addEventListener('click', () => toggleMenu(false));
+            overlay.addEventListener('click', () => toggleMenu(false));
+
+            // Fecha com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                    toggleMenu(false);
+                }
+            });
+
+            // Fecha ao redimensionar para desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    toggleMenu(false);
+                }
+            });
+
+            // Fecha ao clicar em um link do menu (mobile)
+            document.querySelectorAll('.sidebar-nav a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        toggleMenu(false);
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
