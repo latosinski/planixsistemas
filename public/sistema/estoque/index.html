@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque++ | Controle de Estoque</title>
+    <style>
+        :root {
+            --navy: #0c4257;
+            --navy2: #1f2a5e;
+            --primary: #0c4257;
+            --primary2: #1e2a5e;
+            --accent: #95CCDD;
+            --accent-light: #e6f2f7;
+            --bg: #f0f4f8;
+            --card: #fff;
+            --text: #1a1a2e;
+            --muted: #64748b;
+            --border: #dde3e9;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0284c7;
+            --radius: 14px;
+            --shadow: 0 8px 30px rgba(15, 23, 42, .07);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font: 14px Inter, Segoe UI, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        .app { min-height: 100vh; }
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 260px;
+            background: var(--navy);
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .brand {
+            height: 74px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+            position: relative;
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+        }
+        .brand b { color: #fff; font-size: 17px; }
+        .brand small { display: block; color: #7f8da3; margin-top: 2px; }
+        .nav {
+            padding: 18px 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, .35) transparent;
+        }
+        .nav::-webkit-scrollbar { width: 6px; }
+        .nav::-webkit-scrollbar-track { background: transparent; margin: 10px 0; }
+        .nav::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, .28);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        .nav-title {
+            font-size: 10px;
+            letter-spacing: .12em;
+            color: #64748b;
+            font-weight: 800;
+            margin: 16px 10px 7px;
+            text-transform: uppercase;
+        }
+        .nav-btn {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #b7c2d2;
+            text-align: left;
+            padding: 11px 12px;
+            border-radius: 9px;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            transition: background .2s, color .2s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: #1e293b;
+            color: #fff;
+        }
+        .nav-btn.active { box-shadow: inset 3px 0 var(--accent); }
+        .nav-icon { width: 20px; text-align: center; }
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+        .sidebar-close-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+        .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255, 255, 255, .08); }
+        .main { margin-left: 260px; min-height: 100vh; }
+        .topbar {
+            height: 74px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        .top-left { display: flex; align-items: center; gap: 16px; }
+        .menu-toggle {
+            display: none !important;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 10px;
+            place-items: center;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text);
+        }
+        .menu-toggle.is-open { background: #1e293b; border-color: #334155; color: #fff; transform: rotate(90deg); }
+        .menu-toggle .menu-icon-close { display: none; font-size: 27px; font-weight: 300; line-height: 1; transform: translateY(-1px); }
+        .menu-toggle.is-open .menu-icon-open { display: none; }
+        .menu-toggle.is-open .menu-icon-close { display: block; }
+        .crumb { color: var(--muted); }
+        .crumb b { color: var(--text); }
+        .top-actions { display: flex; align-items: center; gap: 12px; }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+            display: inline-grid;
+            place-items: center;
+            cursor: pointer;
+        }
+        .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            right: 9px;
+            top: 8px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            color: var(--primary);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+        }
+        .content { padding: 28px; max-width: 1600px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 22px;
+            gap: 18px;
+        }
+        .page-head h1 { margin: 0 0 5px; font-size: 25px; letter-spacing: -.03em; }
+        .page-head p { margin: 0; color: var(--muted); }
+        .btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: #334155;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer;
+            transition: background .2s, border-color .2s;
+        }
+        .btn:hover { background: #f8fafc; }
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--primary2); }
+        .btn-danger { color: var(--danger); }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .kpi {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: var(--shadow);
+        }
+        .kpi-top {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+        }
+        .blue { background: var(--accent-light); color: var(--primary); }
+        .red { background: #fef2f2; color: #dc2626; }
+        .green { background: #ecfdf5; color: #059669; }
+        .amber { background: #fffbeb; color: #d97706; }
+        .kpi-value { font-size: 29px; font-weight: 800; margin: 13px 0 5px; }
+        .kpi-note { font-size: 12px; color: var(--muted); }
+        .up { color: var(--success); }
+        .grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 18px; }
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 19px;
+        }
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .card-title { font-size: 16px; font-weight: 800; }
+        .table-wrap { overflow: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            background: #f8fafc;
+        }
+        tr:hover td { background: #fbfdff; }
+        .badge {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .b-open { background: var(--accent-light); color: var(--primary); }
+        .b-progress { background: #f0fdf4; color: #15803d; }
+        .b-wait { background: #fffbeb; color: #b45309; }
+        .b-late { background: #fef2f2; color: #b91c1c; }
+        .b-done { background: #f1f5f9; color: #475569; }
+        .alert-list { display: grid; gap: 10px; }
+        .alert {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            gap: 11px;
+        }
+        .alert strong { display: block; }
+        .alert small { color: var(--muted); }
+        .alert.redline { border-left: 4px solid var(--danger); }
+        .alert.amberline { border-left: 4px solid var(--warning); }
+        .alert.blueline { border-left: 4px solid var(--accent); }
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .input {
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0 12px;
+            background: #fff;
+            min-width: 160px;
+        }
+        .search { min-width: 260px; flex: 1; }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .empty { padding: 35px; text-align: center; color: var(--muted); }
+        .statusbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 18px;
+            overflow: auto;
+        }
+        .tab {
+            border: 0;
+            background: none;
+            padding: 12px 15px;
+            color: var(--muted);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .tab.active { color: var(--primary); border-bottom: 3px solid var(--accent); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .detail-grid { display: grid; grid-template-columns: 1.3fr .7fr; gap: 18px; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .field label {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .field div { font-weight: 650; }
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 18px;
+        }
+        .modal-bg.show { display: flex; }
+        .modal {
+            width: min(760px, 100%);
+            max-height: 92vh;
+            overflow: auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, .3);
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { display: grid; gap: 6px; }
+        .form-group.full { grid-column: 1/-1; }
+        .form-group label { font-weight: 750; font-size: 12px; }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px;
+            background: #fff;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 20px;
+        }
+        .mobile-only { display: none; }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .48);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.28s ease, visibility 0.28s ease;
+        }
+        .overlay.show { opacity: 1; visibility: visible; }
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            align-items: flex-end;
+        }
+        .filter-bar .input { min-width: 140px; }
+        .metric-mini {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .metric-mini .kpi {
+            padding: 14px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .metric-mini .kpi-value { font-size: 22px; }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+        .chart-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 19px;
+        }
+        .chart-card h3 { margin: 0 0 10px; font-size: 15px; }
+        .chart-container {
+            position: relative;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border-radius: 8px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .alert-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .alert-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            border-left-width: 4px;
+            background: #fff;
+        }
+        .alert-item.critico { border-left-color: var(--danger); }
+        .alert-item.atencao { border-left-color: var(--warning); }
+        .alert-item.info { border-left-color: var(--info); }
+        .alert-item .alert-icon { font-size: 1.3rem; line-height: 1; }
+        .tabs-dash {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            overflow: auto;
+        }
+        .tab-dash {
+            padding: 8px 14px;
+            cursor: pointer;
+            border: 0;
+            background: none;
+            font-weight: 700;
+            color: var(--muted);
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .tab-dash.active {
+            color: var(--primary);
+            border-bottom-color: var(--accent);
+        }
+        .tab-panel-dash { display: none; }
+        .tab-panel-dash.active { display: block; }
+        .export-btn {
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+        @media(max-width:1050px) {
+            .kpis { grid-template-columns: repeat(2, 1fr); }
+            .grid, .detail-grid { grid-template-columns: 1fr; }
+            .metric-mini { grid-template-columns: repeat(2, 1fr); }
+            .chart-row { grid-template-columns: 1fr; }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+                box-shadow: none;
+                z-index: 1000;
+            }
+            .sidebar.open { transform: translateX(0); box-shadow: 18px 0 45px rgba(15, 23, 42, .28); }
+            .main { margin-left: 0; }
+            .menu-toggle { display: inline-grid !important; }
+            .sidebar-close-btn { display: flex; }
+            .mobile-only { display: inline-grid; }
+        }
+        @media(max-width:650px) {
+            .content { padding: 18px; }
+            .topbar { padding: 0 16px; }
+            .top-actions .icon-btn { display: none; }
+            .page-head { flex-direction: column; }
+            .kpis { grid-template-columns: 1fr; }
+            .metric-mini { grid-template-columns: 1fr; }
+            .form-grid, .info-grid { grid-template-columns: 1fr; }
+            .toolbar { align-items: stretch; flex-direction: column; }
+            .filters { flex-direction: column; }
+            .input, .search { width: 100%; min-width: 0; }
+            .top-actions .avatar { display: grid; }
+            .card { padding: 14px; }
+            .page-head h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="overlay" id="overlay"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="logo">EF</div>
+                <div><b>Estoque++</b><small>Controle Operacional</small></div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu">×</button>
+            </div>
+            <nav class="nav">
+                <div class="nav-title">VISÃO GERAL</div>
+                <button class="nav-btn active" data-page="dashboard">▦ <span>Dashboard</span></button>
+                <div class="nav-title">OPERAÇÃO</div>
+                <button class="nav-btn" data-page="notas">▣ <span>Notas Fiscais</span></button>
+                <button class="nav-btn" data-page="movimentacoes">↕ <span>Movimentações</span></button>
+                <div class="nav-title">CADASTROS</div>
+                <button class="nav-btn" data-page="clientes">♙ <span>Clientes</span></button>
+                <button class="nav-btn" data-page="fornecedores">♟ <span>Fornecedores</span></button>
+                <button class="nav-btn" data-page="produtos">▤ <span>Produtos</span></button>
+                <div class="nav-title">ESTOQUE</div>
+                <button class="nav-btn" data-page="estoque">▣ <span>Posição de Estoque</span></button>
+                <div class="nav-title">FINANCEIRO</div>
+                <button class="nav-btn" data-page="receber">↓ <span>Contas a Receber</span></button>
+                <button class="nav-btn" data-page="pagar">↑ <span>Contas a Pagar</span></button>
+                <button class="nav-btn" data-page="caixa">▥ <span>Fluxo de Caixa</span></button>
+                <div class="nav-title">GESTÃO</div>
+                <button class="nav-btn" data-page="relatorios">▥ <span>Relatórios</span></button>
+                <button class="nav-btn" data-page="config">⚙ <span>Configurações</span></button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="nav-btn" onclick="toast('Sessão encerrada (demonstração)')">⇥ <span>Sair do sistema</span></button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="top-left">
+                    <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
+                        <span class="menu-icon-open" aria-hidden="true">☰</span>
+                        <span class="menu-icon-close" aria-hidden="true">×</span>
+                    </button>
+                    <div class="crumb">Estoque++/ <b id="crumb">Dashboard</b></div>
+                </div>
+                <div class="top-actions">
+                    <button class="icon-btn" title="Notificações" onclick="toast('Nenhuma notificação')">♢<i class="dot"></i></button>
+                    <button class="icon-btn" onclick="toast('Ajuda do sistema')">?</button>
+                    <div class="avatar">MR</div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- ========== DASHBOARD ========== -->
+                <section class="page active" id="dashboard">
+                    <div class="page-head">
+                        <div>
+                            <h1>Visão geral</h1>
+                            <p>Acompanhe os principais indicadores do estoque e financeiro.</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="openModal()">＋ Nova Movimentação</button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros posicionados no topo -->
+                    <div class="filter-bar">
+                        <select class="input" id="filterCategory">
+                            <option value="">Todas as categorias</option>
+                        </select>
+                        <select class="input" id="filterSupplier">
+                            <option value="">Todos os fornecedores</option>
+                        </select>
+                        <select class="input" id="filterPeriod">
+                            <option value="30">Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                            <option value="180">Últimos 6 meses</option>
+                        </select>
+                        <select class="input" id="filterStatus">
+                            <option value="">Todos os status</option>
+                        </select>
+                        <button class="btn" id="applyFilters">Aplicar Filtros</button>
+                    </div>
+
+                    <!-- KPIs principais -->
+                    <div class="kpis">
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Itens em estoque</span><span class="kpi-icon blue">▣</span></div>
+                            <div class="kpi-value">0</div>
+                            <div class="kpi-note">Total de unidades</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Valor em estoque</span><span class="kpi-icon green">R$</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Custo médio</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Entradas (mês)</span><span class="kpi-icon blue">↓</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Compras registradas</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Saídas (mês)</span><span class="kpi-icon red">↑</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Vendas e baixas</div>
+                        </div>
+                    </div>
+
+                    <!-- Métricas essenciais -->
+                    <div class="metric-mini">
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Giro de Estoque</span><span class="kpi-icon blue">↻</span></div>
+                            <div class="kpi-value" id="giroValue">0</div>
+                            <div class="kpi-note">vezes/ano</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Dias de Cobertura</span><span class="kpi-icon green">⏱</span></div>
+                            <div class="kpi-value" id="coberturaValue">0</div>
+                            <div class="kpi-note">dias</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Lead Time Médio</span><span class="kpi-icon amber">🚚</span></div>
+                            <div class="kpi-value" id="leadtimeValue">0</div>
+                            <div class="kpi-note">dias</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Curva ABC - Classe A</span><span class="kpi-icon red">📊</span></div>
+                            <div class="kpi-value" id="abcValue">0%</div>
+                            <div class="kpi-note">do valor total</div>
+                        </div>
+                    </div>
+
+                    <!-- Área de gráficos vazia -->
+                    <div class="chart-row">
+                        <div class="chart-card">
+                            <h3>Evolução de Entradas e Saídas</h3>
+                            <div class="chart-container">
+                                Sem dados disponíveis
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Classificação ABC - Distribuição por Categoria</h3>
+                            <div class="chart-container">
+                                Sem dados disponíveis
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-row">
+                        <div class="chart-card">
+                            <h3>Top 5 Produtos: Vendas vs. Estoque</h3>
+                            <div class="chart-container">
+                                Sem dados disponíveis
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Status Atual do Estoque</h3>
+                            <div class="chart-container">
+                                Sem dados disponíveis
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas -->
+                    <div class="card" style="margin-bottom:18px;">
+                        <div class="card-head">
+                            <div class="card-title">Alertas de Estoque</div>
+                            <span class="badge b-late">0 ativos</span>
+                        </div>
+                        <div class="alert-board" id="alertBoard">
+                            <div class="empty">Nenhum alerta no momento</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabelas operacionais com abas -->
+                    <div class="card">
+                        <div class="tabs-dash" id="dashTabs">
+                            <button class="tab-dash active" data-tab="reposicao">Itens Críticos para Reposição</button>
+                            <button class="tab-dash" data-tab="ultimos">Últimas Movimentações</button>
+                            <button class="tab-dash" data-tab="fornecedores">Performance de Fornecedores</button>
+                        </div>
+                        <div class="tab-panel-dash active" id="panel-reposicao">
+                            <div class="table-wrap">
+                                <table id="reposicaoTable">
+                                    <thead><tr><th>Produto</th><th>Saldo Atual</th><th>Ponto de Pedido</th><th>Sugestão de Compra</th><th>Fornecedor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td colspan="5" class="empty">Nenhum registro encontrado</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn export-btn" onclick="exportTableToCSV('reposicaoTable','reposicao.csv')">⇩ Exportar CSV</button>
+                        </div>
+                        <div class="tab-panel-dash" id="panel-ultimos">
+                            <div class="table-wrap">
+                                <table id="movTable">
+                                    <thead><tr><th>Data</th><th>Tipo</th><th>Produto</th><th>Quantidade</th><th>Origem/Destino</th></tr></thead>
+                                    <tbody>
+                                        <tr><td colspan="5" class="empty">Nenhum registro encontrado</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn export-btn" onclick="exportTableToCSV('movTable','movimentacoes.csv')">⇩ Exportar CSV</button>
+                        </div>
+                        <div class="tab-panel-dash" id="panel-fornecedores">
+                            <div class="table-wrap">
+                                <table id="fornTable">
+                                    <thead><tr><th>Fornecedor</th><th>Lead Time Prometido</th><th>Lead Time Real</th><th>Entregas no Prazo (%)</th><th>Avaliação</th></tr></thead>
+                                    <tbody>
+                                        <tr><td colspan="5" class="empty">Nenhum registro encontrado</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn export-btn" onclick="exportTableToCSV('fornTable','fornecedores.csv')">⇩ Exportar CSV</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========== NOTAS FISCAIS ========== -->
+                <section class="page" id="notas">
+                    <div class="page-head">
+                        <div>
+                            <h1>Notas Fiscais</h1>
+                            <p>Registre e acompanhe notas fiscais de entrada e saída.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal()">＋ Nova Nota Fiscal</button>
+                    </div>
+                    <div class="card">
+                        <div class="filters">
+                            <input class="input search" placeholder="Buscar por número, fornecedor/cliente...">
+                            <select class="input">
+                                <option value="">Todos os tipos</option>
+                            </select>
+                            <select class="input">
+                                <option value="">Todas as situações</option>
+                            </select>
+                            <input class="input" type="date">
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr><th>Número</th><th>Tipo</th><th>Emitente/Destinatário</th><th>Data</th><th>Valor</th><th>Situação</th><th>Ações</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="7" class="empty">Nenhum registro encontrado</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========== MOVIMENTAÇÕES ========== -->
+                <section class="page" id="movimentacoes">
+                    <div class="page-head">
+                        <div>
+                            <h1>Movimentações de Estoque</h1>
+                            <p>Histórico de entradas, saídas e ajustes de inventário.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal()">＋ Nova Movimentação</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead>
+                                <tr><th>Data</th><th>Tipo</th><th>Produto</th><th>Quantidade</th><th>Origem/Destino</th><th>Responsável</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== CLIENTES ========== -->
+                <section class="page" id="clientes">
+                    <div class="page-head">
+                        <div>
+                            <h1>Clientes</h1>
+                            <p>Cadastro de clientes para emissão de notas fiscais de saída.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Cadastro de cliente')">＋ Novo Cliente</button>
+                    </div>
+                    <div class="card">
+                        <div class="filters">
+                            <input class="input search" placeholder="Buscar cliente, CNPJ ou cidade...">
+                            <select class="input"><option>Todos</option><option>Ativos</option><option>Inativos</option></select>
+                        </div>
+                        <table>
+                            <thead><tr><th>Código</th><th>Cliente</th><th>Contato</th><th>Cidade</th><th>Compras</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== FORNECEDORES ========== -->
+                <section class="page" id="fornecedores">
+                    <div class="page-head">
+                        <div>
+                            <h1>Fornecedores</h1>
+                            <p>Cadastro de fornecedores para compras e notas fiscais de entrada.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Cadastro de fornecedor')">＋ Novo Fornecedor</button>
+                    </div>
+                    <div class="card">
+                        <div class="filters">
+                            <input class="input search" placeholder="Buscar fornecedor, CNPJ...">
+                        </div>
+                        <table>
+                            <thead><tr><th>Código</th><th>Fornecedor</th><th>Contato</th><th>Cidade</th><th>Compras</th><th></th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== PRODUTOS ========== -->
+                <section class="page" id="produtos">
+                    <div class="page-head">
+                        <div>
+                            <h1>Produtos</h1>
+                            <p>Catálogo de itens de estoque com custos, preços e unidades.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Cadastro de produto')">＋ Novo Produto</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Código</th><th>Produto</th><th>Unidade</th><th>Custo Médio</th><th>Preço Venda</th><th>Saldo</th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== ESTOQUE (POSIÇÃO) ========== -->
+                <section class="page" id="estoque">
+                    <div class="page-head">
+                        <div>
+                            <h1>Posição de Estoque</h1>
+                            <p>Consulte saldos, estoque mínimo e disponibilidade dos itens.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Cadastro de produto')">＋ Novo Produto</button>
+                    </div>
+                    <div class="kpis">
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Itens cadastrados</span><span class="kpi-icon blue">▣</span></div>
+                            <div class="kpi-value">0</div>
+                            <div class="kpi-note">0 ativos</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Estoque crítico</span><span class="kpi-icon red">!</span></div>
+                            <div class="kpi-value">0</div>
+                            <div class="kpi-note">Abaixo do mínimo</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Sem saldo</span><span class="kpi-icon amber">0</span></div>
+                            <div class="kpi-value">0</div>
+                            <div class="kpi-note">Reposição necessária</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Valor em estoque</span><span class="kpi-icon green">R$</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Custo médio</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="filters">
+                            <input class="input search" placeholder="Buscar produto ou código...">
+                            <select class="input">
+                                <option>Todas as situações</option>
+                            </select>
+                        </div>
+                        <table>
+                            <thead><tr><th>Código</th><th>Produto</th><th>Saldo</th><th>Mínimo</th><th>Localização</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== CONTAS A RECEBER ========== -->
+                <section class="page" id="receber">
+                    <div class="page-head">
+                        <div>
+                            <h1>Contas a Receber</h1>
+                            <p>Acompanhe títulos, vencimentos e recebimentos de vendas.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Novo lançamento')">＋ Novo Lançamento</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Título</th><th>Cliente</th><th>Origem</th><th>Vencimento</th><th>Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== CONTAS A PAGAR ========== -->
+                <section class="page" id="pagar">
+                    <div class="page-head">
+                        <div>
+                            <h1>Contas a Pagar</h1>
+                            <p>Controle despesas, fornecedores e compromissos financeiros.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="toast('Nova despesa')">＋ Nova Despesa</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead><tr><th>Título</th><th>Fornecedor</th><th>Categoria</th><th>Vencimento</th><th>Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== FLUXO DE CAIXA ========== -->
+                <section class="page" id="caixa">
+                    <div class="page-head">
+                        <div>
+                            <h1>Fluxo de Caixa</h1>
+                            <p>Analise entradas, saídas e saldo projetado.</p>
+                        </div>
+                        <button class="btn" onclick="toast('Exportação')">⇩ Exportar</button>
+                    </div>
+                    <div class="kpis">
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Saldo atual</span><span class="kpi-icon green">R$</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Disponível hoje</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Entradas do mês</span><span class="kpi-icon blue">↓</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Recebimentos confirmados</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Saídas do mês</span><span class="kpi-icon red">↑</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Pagamentos realizados</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-top"><span>Saldo projetado</span><span class="kpi-icon amber">≈</span></div>
+                            <div class="kpi-value">R$ 0,00</div>
+                            <div class="kpi-note">Próximos 30 dias</div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top:18px">
+                        <div class="card-title">Lançamentos recentes</div>
+                        <table>
+                            <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th></tr></thead>
+                            <tbody>
+                                <tr><td colspan="5" class="empty">Nenhum lançamento</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ========== RELATÓRIOS ========== -->
+                <section class="page" id="relatorios">
+                    <div class="page-head">
+                        <div>
+                            <h1>Relatórios</h1>
+                            <p>Gere análises de estoque, movimentações e financeiro.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="info-grid">
+                            <button class="btn" onclick="toast('Relatório de estoque')">Posição de Estoque</button>
+                            <button class="btn" onclick="toast('Relatório de movimentações')">Movimentações</button>
+                            <button class="btn" onclick="toast('Relatório financeiro')">Financeiro</button>
+                            <button class="btn" onclick="toast('Relatório de notas fiscais')">Notas Fiscais</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========== CONFIGURAÇÕES ========== -->
+                <section class="page" id="config">
+                    <div class="page-head">
+                        <div>
+                            <h1>Configurações</h1>
+                            <p>Defina parâmetros da empresa, usuários, permissões e integrações.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="empty">Área preparada para configurações do sistema.</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Nova Movimentação / Nota Fiscal -->
+    <div class="modal-bg" id="modalBg">
+        <div class="modal">
+            <div class="modal-head">
+                <div>
+                    <h2 style="margin:0">Nova Movimentação de Estoque</h2>
+                    <small style="color:var(--muted)">Registre entrada ou saída de itens.</small>
+                </div>
+                <button class="icon-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tipo de Movimentação *</label>
+                    <select id="tipoMov">
+                        <option value="">Selecione...</option>
+                        <option value="entrada">Entrada (Compra)</option>
+                        <option value="saida">Saída (Venda)</option>
+                        <option value="ajuste">Ajuste de Inventário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nota Fiscal (opcional)</label>
+                    <input placeholder="Número da NF-e">
+                </div>
+                <div class="form-group">
+                    <label>Fornecedor/Cliente *</label>
+                    <select>
+                        <option>Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data *</label>
+                    <input type="date">
+                </div>
+                <div class="form-group full">
+                    <label>Produto *</label>
+                    <select>
+                        <option>Selecione o produto...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade *</label>
+                    <input type="number" min="1" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor Unitário (R$)</label>
+                    <input type="number" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group full">
+                    <label>Observações</label>
+                    <textarea rows="3" placeholder="Detalhes adicionais..."></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="createMov()">Registrar Movimentação</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" style="position:fixed;right:22px;bottom:22px;background:#0f172a;color:#fff;padding:13px 17px;border-radius:10px;box-shadow:0 12px 35px rgba(0,0,0,.25);display:none;z-index:200"></div>
+
+    <script>
+        // ===== Navegação, Modal e Toast =====
+        (function () {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            const crumb = document.getElementById('crumb');
+
+            const labels = {
+                dashboard: 'Dashboard',
+                notas: 'Notas Fiscais',
+                movimentacoes: 'Movimentações',
+                clientes: 'Clientes',
+                fornecedores: 'Fornecedores',
+                produtos: 'Produtos',
+                estoque: 'Posição de Estoque',
+                receber: 'Contas a Receber',
+                pagar: 'Contas a Pagar',
+                caixa: 'Fluxo de Caixa',
+                relatorios: 'Relatórios',
+                config: 'Configurações'
+            };
+
+            document.querySelectorAll('.nav-btn[data-page]').forEach(b => {
+                b.addEventListener('click', () => go(b.dataset.page));
+            });
+
+            function go(id) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                const target = document.getElementById(id);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+                crumb.textContent = labels[id] || id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (window.innerWidth <= 1050) toggleMenu(false);
+            }
+
+            function toggleMenu(force) {
+                const isOpen = force !== undefined ? force : !sidebar.classList.contains('open');
+                sidebar.classList.toggle('open', isOpen);
+                overlay.classList.toggle('show', isOpen);
+                menuToggle.classList.toggle('is-open', isOpen);
+                menuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            }
+
+            menuToggle.addEventListener('click', () => toggleMenu());
+            sidebarCloseBtn.addEventListener('click', () => toggleMenu(false));
+            overlay.addEventListener('click', () => toggleMenu(false));
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    if (sidebar.classList.contains('open')) toggleMenu(false);
+                    closeModal();
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 1050 && sidebar.classList.contains('open')) {
+                    toggleMenu(false);
+                }
+            });
+
+            function openModal() { document.getElementById('modalBg').classList.add('show'); }
+            function closeModal() { document.getElementById('modalBg').classList.remove('show'); }
+            function createMov() {
+                closeModal();
+                toast('Movimentação registrada com sucesso!');
+                go('movimentacoes');
+            }
+
+            let timer;
+            function toast(t) {
+                const e = document.getElementById('toast');
+                e.textContent = t;
+                e.style.display = 'block';
+                clearTimeout(timer);
+                timer = setTimeout(() => e.style.display = 'none', 2600);
+            }
+
+            // Função de exportação CSV (mantida para uso futuro)
+            window.exportTableToCSV = function(tableId, filename) {
+                const table = document.getElementById(tableId);
+                if (!table) return;
+                let csv = [];
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const cols = row.querySelectorAll('th, td');
+                    const rowData = Array.from(cols).map(col => col.innerText.replace(/,/g, ';'));
+                    csv.push(rowData.join(','));
+                });
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                toast('Arquivo ' + filename + ' gerado!');
+            };
+
+            // Expor funções globais
+            window.toggleMenu = toggleMenu;
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+            window.createMov = createMov;
+            window.toast = toast;
+            window.go = go;
+        })();
+    </script>
+</body>
+</html>
