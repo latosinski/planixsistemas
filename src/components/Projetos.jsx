@@ -75,7 +75,7 @@ const projetosData = [
       'Plataforma de Inteligência e Reputação Digital',
     imagem:
       '/img/projetos/valor_online.jpg',
-      link: 'https://planixsistemas.vercel.app/sistema/valor_online/software/sistema.html',
+      link: 'https://planixsistemas.vercel.app/sistema/valor/index.html',
   },
   {
     tag: 'Sistema Clinic Pró',
