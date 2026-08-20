@@ -73,6 +73,22 @@
   font-size: 1rem;
   line-height: 1.6;
 }
+.accessLink {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #000;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.accessLink:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(124, 124, 255, 0.4);
+}
 
 @keyframes fadeIn {
   from {

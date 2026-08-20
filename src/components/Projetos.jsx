@@ -6,36 +6,40 @@ import Modal from './Modal';
 
 const projetosData = [
   {
-    tag: 'Sistema Web',
-    titulo: 'Psicologia Integrativa',
+    tag: 'Sistema Fluxo de Caixa',
+    titulo: 'Sistema Fluxo de Caixa',
     descricao:
-      'Site integrado com plataforma de marcação de consultas com dashboards e integrado.',
+      'Sistema com visão rápida da saúde financeira do mês atual.',
     imagem:
-      '/img/projetos/psicologia.jpg',
+      '/img/projetos/fluxocaixa.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/fluxodecaixa/index.html',
   },
   {
-    tag: 'E-commerce',
-    titulo: 'Cut Pack',
+    tag: 'Sistema Paper_Craft',
+    titulo: 'Paper Craft',
     descricao:
-      'Loja virtual com assinatura, catálogo online, carrinho e pagamento online.',
+      'Sistema ERP para controle operacional de lojas online, rotinas de gestão em uma única plataforma.',
     imagem:
       '/img/projetos/cut_pack.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/paper/index.html',
   },
   {
-    tag: 'Site Institucional',
-    titulo: 'Estúdio Arq',
+    tag: 'Sistema Agro Gestão',
+    titulo: 'Agro Gestão',
     descricao:
-      'Site moderno com portfólio de projetos, equipe e gerenciamento de conteúdo.',
+      'Sistema de Gestão de propriedades rurais, estoque, cultivos, áreas e talhões.',
     imagem:
-      '/img/projetos/estudio_arq.jpg',
+      '/img/projetos/agro.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/agro/index.html',
   },
     {
-    tag: 'Landing Page',
-    titulo: 'Trader Max Pró',
+    tag: 'Sistema Ordem de Serviço',
+    titulo: 'Ordem de Serviço',
     descricao:
-      'Página de captura para para promover sistema de tecnologia.',
+      'Sistema completo com ordens de serviço, orçamentos, agenda técnica, clientes, produtos e serviços.',
     imagem:
-      '/img/projetos/site_trader.jpg',
+      '/img/projetos/service.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/ordemservico/index.html',
   },
   {
     tag: 'Sistema Desktop',
@@ -43,39 +47,44 @@ const projetosData = [
     descricao:
       'Sistema de gerenciamento de operações de Day Trade.',
     imagem:
-      '/img/projetos/tradermaxpro.jpg'
+      '/img/projetos/tradermaxpro.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/tradermaxpro/tradermaxpro.html',
   },
   {
-    tag: 'Dashboard',
-    titulo: 'Contas à Pagar e Receber',
+    tag: 'Sistema Financeiro',
+    titulo: 'Finanças Pessoais',
     descricao:
-      'Sistema dashboard de contas à pagar e receber com atualização em tempo real.',
+      'Sistema dashboard pa controle financeiro com atualização em tempo real.',
     imagem:
       '/img/projetos/contas.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/financas/index.html',
   },
   {
-    tag: 'Sistema Web',
+    tag: 'Controle de Estoque',
     titulo: 'Controle de Estoque',
     descricao:
       'Controle de estoque e logística para pequenas e médias empresas.',
     imagem:
       '/img/projetos/controle_estoque.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/estoque/index.html',
   },
   {
-    tag: 'Transforme sua Planilha',
-    titulo: 'Planilha Excel',
+    tag: 'Sistema de Monitoramento',
+    titulo: 'Valor OnLine',
     descricao:
-      'Transforme sua planilha excel em um sistema desktop ou web, com banco de dados.',
+      'Plataforma de Inteligência e Reputação Digital',
     imagem:
-      '/img/projetos/planilha_dashboard.jpg'
+      '/img/projetos/valor_online.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/valor_online/software/sistema.html',
   },
   {
-    tag: 'Dashboard Corretores',
-    titulo: 'Corretores de Imóveis',
+    tag: 'Sistema Clinic Pró',
+    titulo: 'Clinic Pró',
     descricao:
-      'Gerenciador para corretores, dashboard completo, vendas, locaçãoes e contratos.',
+      'Sistema ERP com agenda, consultas, pacientes, profissionais, planos de saúde.',
     imagem:
-      '/img/projetos/imobi.jpg'
+      '/img/projetos/clinicpro.jpg',
+      link: 'https://planixsistemas.vercel.app/sistema/clinica/index.html',
   },
 ];
 
@@ -148,8 +157,9 @@ export default function Projetos() {
           tag={selectedProject.tag}
           title={selectedProject.titulo}
           description={selectedProject.descricao}
+          link={selectedProject.link}   // ← adicione esta linha
           onClose={closeModal}
-        />
+            />
       )}
     </section>
   );
