@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estúdio ARQ | Arquitetura Contemporânea e Projetos Autorais</title>
+<meta name="description" content="Estúdio de arquitetura especializado em projetos autorais residenciais e comerciais. Criamos espaços que transcendem o tempo.">
+<meta name="author" content="Estúdio ARQ">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&family=Source+Serif+Pro:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ================= VARIÁVEIS & RESET ================= */
+:root {
+  --black: #0a0a0a;
+  --dark-gray: #1a1a1a;
+  --medium-gray: #3a3a3a;
+  --light-gray: #e8e8e8;
+  --cream: #f8f7f4;
+  --off-white: #f5f5f0;
+  --white: #ffffff;
+  --accent: #b99d6b;
+  --accent-light: #d4b98a;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  --spacing-xl: 8rem;
+  --container: 1200px;
+  --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  --border-radius: 8px;
+  --section-bg: #fcfcf9;
+  --menu-bg: rgba(15, 15, 15, 0.85);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--off-white);
+  color: var(--dark-gray);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-weight: 300;
+}
+
+/* ================= TIPOGRAFIA ================= */
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  color: var(--white);
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  margin-bottom: var(--spacing-md);
+  position: relative;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+p {
+  font-size: 1rem;
+  color: var(--medium-gray);
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+.section-subtitle {
+  font-family: 'Source Serif Pro', serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+/* ================= LAYOUT ================= */
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+section {
+  padding: var(--spacing-xl) 0;
+  position: relative;
+}
+
+.section-bg {
+  background-color: var(--section-bg);
+}
+
+/* ================= HEADER COM MAIS CONTRASTE ================= */
+.hero-header {
+  position: relative;
+  height: 100vh;
+  min-height: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.2) 100%);
+  z-index: 2;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: var(--menu-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: var(--transition);
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+header.transparent {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+header.scrolled {
+  background: var(--menu-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 0;
+  transition: var(--transition);
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--white);
+  position: relative;
+  padding-bottom: 5px;
+  transition: var(--transition);
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: var(--accent);
+  transition: var(--transition);
+}
+
+.menu {
+  display: flex;
+  gap: 3rem;
+}
+
+.menu a {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  transition: var(--transition);
+  position: relative;
+  padding: 0.5rem 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.menu a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.menu a:hover {
+  color: var(--white);
+}
+
+.menu a:hover::after {
+  width: 100%;
+}
+
+.menu a.active {
+  color: var(--accent);
+}
+
+.menu a.active::after {
+  width: 100%;
+  background: var(--accent);
+}
+
+.menu-toggle {
+  display: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.5rem;
+  z-index: 1001;
+}
+
+/* ================= HERO CONTENT ================= */
+.hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 var(--spacing-md);
+}
+
+.hero-content h1 {
+  margin-bottom: var(--spacing-md);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.hero-content p {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.2rem;
+  margin: 0 auto var(--spacing-lg);
+  max-width: 700px;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 1.2rem 2.5rem;
+  background: var(--accent);
+  color: var(--black);
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: var(--transition);
+  border: none;
+  font-weight: 500;
+  border-radius: 50px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover {
+  background: var(--white);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: bounce 2s infinite;
+}
+
+.scroll-indicator i {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+}
+
+/* ================= SOBRE ================= */
+.about {
+  background: var(--off-white);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: center;
+}
+
+.about-image {
+  position: relative;
+}
+
+.about-image::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--accent);
+  z-index: -1;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.stat-item {
+  text-align: center;
+  padding: var(--spacing-md);
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  transition: var(--transition);
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: var(--accent);
+  display: block;
+  font-weight: 500;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--medium-gray);
+  margin-top: 0.5rem;
+}
+
+/* ================= SERVIÇOS ================= */
+.services {
+  background: var(--section-bg);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.service-card {
+  padding: var(--spacing-lg);
+  background: var(--white);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
+
+.service-card:hover::before {
+  transform: scaleX(1);
+}
+
+.service-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent);
+}
+
+.service-card h3 {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ================= PORTFÓLIO (4 PROJETOS) ================= */
+.portfolio {
+  background: var(--off-white);
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.project-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+  height: 300px;
+  transition: var(--transition);
+}
+
+.project-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+  filter: brightness(0.9);
+}
+
+.project-card:hover .project-image {
+  transform: scale(1.05);
+  filter: brightness(1);
+}
+
+.project-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: var(--spacing-md);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.project-card:hover .project-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.project-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.project-overlay h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+
+/* ================= BLOG ================= */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.blog-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
+
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+}
+
+.blog-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.blog-content {
+  padding: var(--spacing-lg);
+}
+
+.blog-date {
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ================= FORMULÁRIO DE CONTATO CENTRALIZADO E MELHORADO ================= */
+.contact {
+  background: var(--section-bg);
+  text-align: center;
+}
+
+.contact-form {
+  max-width: 700px;
+  margin: var(--spacing-lg) auto 0;
+  padding: var(--spacing-lg);
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  text-align: left;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--dark-gray);
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--light-gray);
+  background: var(--off-white);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  transition: var(--transition);
+  border-radius: var(--border-radius);
+  color: var(--dark-gray);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(185, 157, 107, 0.15);
+}
+
+textarea.form-control {
+  min-height: 150px;
+  resize: vertical;
+}
+
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%233a3a3a' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.2rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: 1rem 2.5rem;
+  background: var(--accent);
+  color: var(--black);
+  border: none;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  border-radius: 50px;
+  margin-top: var(--spacing-sm);
+  width: auto;
+  min-width: 200px;
+}
+
+.submit-btn:hover {
+  background: var(--accent-light);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.submit-btn i {
+  font-size: 0.9rem;
+}
+
+.contact-info {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--light-gray);
+}
+
+.contact-info p {
+  color: var(--medium-gray);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* ================= FOOTER APERFEIÇOADO ================= */
+footer {
+  background: var(--black);
+  color: var(--white);
+  padding: var(--spacing-xl) 0 var(--spacing-md);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--white);
+}
+
+.footer-about {
+  color: #aaa;
+  line-height: 1.7;
+  margin-bottom: var(--spacing-md);
+}
+
+.footer-title {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--spacing-md);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.footer-links ul {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.footer-links a:hover {
+  color: var(--white);
+}
+
+.contact-info p {
+  color: #aaa;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.social-links {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  color: var(--white);
+  transition: var(--transition);
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.social-links a:hover {
+  background: var(--accent);
+  transform: translateY(-3px);
+}
+
+.copyright {
+  text-align: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* ================= RESPONSIVO ================= */
+@media (max-width: 1200px) {
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .project-card {
+    height: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .services-grid,
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .about-grid {
+    gap: var(--spacing-lg);
+  }
+  
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-header {
+    min-height: 700px;
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+  }
+  
+  .hero-content p {
+    font-size: 1.1rem;
+  }
+  
+  .menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    height: 100vh;
+    background: var(--menu-bg);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    padding: 6rem 2rem;
+    transition: var(--transition);
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .menu.active {
+    right: 0;
+  }
+  
+  .menu a {
+    color: var(--white);
+    font-size: 1.1rem;
+    padding: 1rem 0;
+  }
+  
+  .menu-toggle {
+    display: block;
+  }
+  
+  .hero-grid,
+  .about-grid,
+  .blog-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .about-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .project-card {
+    height: 300px;
+  }
+  
+  .contact-form {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  section {
+    padding: var(--spacing-lg) 0;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  .stat-item {
+    padding: var(--spacing-sm);
+  }
+  
+  .service-card {
+    padding: var(--spacing-md);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Header com Imagem em Tela Cheia -->
+<div class="hero-header" id="home">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1600566752355-35792bedcfea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Arquitetura moderna">
+  </div>
+  <div class="hero-overlay"></div>
+  
+  <header id="mainHeader" class="transparent">
+    <div class="container">
+      <nav class="nav">
+        <div class="logo">ESTÚDIO ARQ</div>
+        <div class="menu">
+          <a href="#home" class="active">Home</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#servicos">Serviços</a>
+          <a href="#portfolio">Portfólio</a>
+          <a href="#blog">Insights</a>
+          <a href="#contato">Contato</a>
+        </div>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </nav>
+    </div>
+  </header>
+  
+  <div class="hero-content">
+    <span class="section-subtitle">Arquitetura Contemporânea</span>
+    <h1>Forma que transcende o tempo, função que habita o espaço</h1>
+    <p>Criamos experiências arquitetônicas únicas onde cada projeto é uma narrativa espacial que equilibra estética, funcionalidade e contexto.</p>
+    <a href="#portfolio" class="cta-button">
+      Explorar Projetos
+      <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+  
+  <div class="scroll-indicator">
+    Scroll
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</div>
+
+<main>
+  <section id="sobre" class="about">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <span class="section-subtitle">Nossa Essência</span>
+          <h2>Arquitetura com propósito e precisão</h2>
+          <p>Somos um estúdio que entende a arquitetura como arte aplicada. Cada projeto é desenvolvido através de um processo meticuloso que considera luz, matéria, proporção e experiência humana.</p>
+          
+          <div class="about-stats">
+            <div class="stat-item">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Projetos</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">12</span>
+              <span class="stat-label">Prêmios</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">15</span>
+              <span class="stat-label">Anos</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Processo criativo do estúdio" class="project-image">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicos" class="services section-bg">
+    <div class="container">
+      <span class="section-subtitle">Especialidades</span>
+      <h2>Serviços Arquitetônicos</h2>
+      
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-home"></i></div>
+          <h3>Arquitetura Residencial</h3>
+          <p>Casas e apartamentos que refletem identidade pessoal e funcionalidade cotidiana.</p>
+        </div>
+        
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-building"></i></div>
+          <h3>Arquitetura Comercial</h3>
+          <p>Espaços corporativos que comunicam valores e otimizam produtividade.</p>
+        </div>
+        
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-pencil-ruler"></i></div>
+          <h3>Design de Interiores</h3>
+          <p>Ambientes completos com curadoria de materiais, iluminação e mobiliário.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio" class="portfolio">
+    <div class="container">
+      <span class="section-subtitle">Trabalhos Selecionados</span>
+      <h2>Portfólio</h2>
+      
+      <div class="portfolio-grid">
+        <div class="project-card">
+          <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Casa moderna" class="project-image">
+          <div class="project-overlay">
+            <div class="project-category">Residencial</div>
+            <h3>Casa Jardins</h3>
+            <p>São Paulo, 2023</p>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Escritório corporativo" class="project-image">
+          <div class="project-overlay">
+            <div class="project-category">Comercial</div>
+            <h3>Headquarters Tech</h3>
+            <p>Curitiba, 2022</p>
+          </div>
+        </div>
+        
+        <div class="project-card">
+           <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Escritório corporativo" class="project-image">
+          <div class="project-overlay">
+            <div class="project-category">Residencial</div>
+            <h3>Loft Centro</h3>
+            <p>Rio de Janeiro, 2023</p>
+          </div>
+        </div>
+        
+        <div class="project-card">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Restaurante moderno" class="project-image">
+          <div class="project-overlay">
+            <div class="project-category">Comercial</div>
+            <h3>Restaurante Vista</h3>
+            <p>Florianópolis, 2022</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog" class="section-bg">
+    <div class="container">
+      <span class="section-subtitle">Pensamento Arquitetônico</span>
+      <h2>Insights</h2>
+      
+      <div class="blog-grid">
+        <article class="blog-card">
+          <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Arquitetura sustentável" class="blog-image">
+          <div class="blog-content">
+            <div class="blog-date">Março 2024</div>
+            <h3>Arquitetura e Sustentabilidade</h3>
+            <p>Como integrar princípios ecológicos sem comprometer a estética e funcionalidade.</p>
+          </div>
+        </article>
+        
+        <article class="blog-card">
+          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Materiais contemporâneos" class="blog-image">
+          <div class="blog-content">
+            <div class="blog-date">Fevereiro 2024</div>
+            <h3>Materiais do Século XXI</h3>
+            <p>Explorando novas tecnologias e materiais na construção contemporânea.</p>
+          </div>
+        </article>
+                <article class="blog-card">
+          <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Arquitetura sustentável" class="blog-image">
+          <div class="blog-content">
+            <div class="blog-date">Março 2024</div>
+            <h3>Arquitetura e Sustentabilidade</h3>
+            <p>Como integrar princípios ecológicos sem comprometer a estética e funcionalidade.</p>
+          </div>
+        </article>
+                <article class="blog-card">
+          <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Arquitetura sustentável" class="blog-image">
+          <div class="blog-content">
+            <div class="blog-date">Março 2024</div>
+            <h3>Arquitetura e Sustentabilidade</h3>
+            <p>Como integrar princípios ecológicos sem comprometer a estética e funcionalidade.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato" class="contact">
+    <div class="container">
+      <span class="section-subtitle">Vamos Conversar</span>
+      <h2>Inicie seu Projeto</h2>
+      
+      <form class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome *</label>
+            <input type="text" id="nome" class="form-control" placeholder="Seu nome completo" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" class="form-control" placeholder="seu@email.com" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="projeto">Tipo de Projeto</label>
+          <select id="projeto" class="form-control">
+            <option value="">Selecione uma opção</option>
+            <option value="residencial">Residencial</option>
+            <option value="comercial">Comercial</option>
+            <option value="interiores">Design de Interiores</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="mensagem">Mensagem *</label>
+          <textarea id="mensagem" class="form-control" placeholder="Conte-nos sobre sua visão, necessidades e expectativas..." required></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          Enviar Mensagem
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
+      
+      <div class="contact-info">
+        <p>Ou entre em contato diretamente: <strong>contato@estudioarq.com</strong> | <strong>+55 (11) 99999-9999</strong></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">ESTÚDIO ARQ</div>
+        <p class="footer-about">Arquitetura que transcende tendências, criando espaços com significado e permanência. Combinamos técnica, criatividade e sensibilidade para transformar visões em realidade construída.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Behance" title="Behance"><i class="fab fa-behance"></i></a>
+          <a href="#" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+        </div>
+      </div>
+      
+      <div>
+        <div class="footer-title">Estúdio</div>
+        <div class="footer-links">
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#sobre">Sobre</a></li>
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#portfolio">Portfólio</a></li>
+            <li><a href="#blog">Insights</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div>
+        <div class="footer-title">Contato</div>
+        <div class="contact-info">
+          <p><strong>Endereço:</strong><br>
+          Rua Harmonia, 123<br>
+          São Paulo – SP<br>
+          05435-000</p>
+          <p><strong>Email:</strong><br>
+          contato@estudioarq.com</p>
+          <p><strong>Telefone:</strong><br>
+          +55 (11) 99999-9999</p>
+        </div>
+      </div>
+      
+      <div>
+        <div class="footer-title">Horários</div>
+        <div class="contact-info">
+          <p><strong>Atendimento:</strong><br>
+          Segunda a Sexta<br>
+          9:00 – 18:00</p>
+          <p><strong>Visitas:</strong><br>
+          Mediante agendamento</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      © 2026 Estúdio ARQ. Todos os direitos reservados. | Desenvolvido com paixão pela @Designa.
+    </div>
+  </div>
+</footer>
+
+<script>
+// Menu Mobile
+const menuToggle = document.getElementById('menuToggle');
+const menu = document.querySelector('.menu');
+
+menuToggle.addEventListener('click', () => {
+  menu.classList.toggle('active');
+  menuToggle.textContent = menu.classList.contains('active') ? '✕' : '☰';
+});
+
+// Fechar menu ao clicar em um link
+document.querySelectorAll('.menu a').forEach(link => {
+  link.addEventListener('click', () => {
+    menu.classList.remove('active');
+    menuToggle.textContent = '☰';
+    
+    // Atualizar link ativo
+    document.querySelectorAll('.menu a').forEach(item => {
+      item.classList.remove('active');
+    });
+    link.classList.add('active');
+  });
+});
+
+// Header scroll effect - SEMPRE VISÍVEL
+const header = document.getElementById('mainHeader');
+let lastScroll = 0;
+
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+  
+  // Sempre mostrar o header quando não estiver no topo
+  if (currentScroll > 100) {
+    header.classList.remove('transparent');
+    header.classList.add('scrolled');
+  } else {
+    header.classList.add('transparent');
+    header.classList.remove('scrolled');
+  }
+  
+  // Atualizar link ativo baseado na seção visível
+  updateActiveMenuLink();
+  
+  lastScroll = currentScroll;
+});
+
+// Atualizar link ativo no menu baseado na seção visível
+function updateActiveMenuLink() {
+  const sections = document.querySelectorAll('section');
+  const menuLinks = document.querySelectorAll('.menu a');
+  
+  let currentSection = '';
+  
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 150;
+    const sectionHeight = section.clientHeight;
+    if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionTop + sectionHeight) {
+      currentSection = section.getAttribute('id');
+    }
+  });
+  
+  menuLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === `#${currentSection}` || 
+        (currentSection === '' && link.getAttribute('href') === '#home')) {
+      link.classList.add('active');
+    }
+  });
+}
+
+// Form submission
+const form = document.querySelector('.contact-form');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  // Validação simples
+  const nome = document.getElementById('nome').value;
+  const email = document.getElementById('email').value;
+  const mensagem = document.getElementById('mensagem').value;
+  
+  if (!nome || !email || !mensagem) {
+    alert('Por favor, preencha todos os campos obrigatórios (*).');
+    return;
+  }
+  
+  // Simular envio
+  const submitBtn = form.querySelector('.submit-btn');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+  submitBtn.disabled = true;
+  
+  setTimeout(() => {
+    alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+    form.reset();
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  }, 1500);
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('href');
+    if(targetId === '#') return;
+    
+    const targetElement = document.querySelector(targetId);
+    if(targetElement) {
+      window.scrollTo({
+        top: targetElement.offsetTop - 100,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
+// Parallax effect para header
+window.addEventListener('scroll', () => {
+  const scrolled = window.pageYOffset;
+  const heroHeader = document.querySelector('.hero-header');
+  if (heroHeader && scrolled < heroHeader.offsetHeight) {
+    const bg = document.querySelector('.hero-bg img');
+    bg.style.transform = `translateY(${scrolled * 0.5}px)`;
+  }
+});
+
+// Inicializar menu ativo
+updateActiveMenuLink();
+</script>
+
+</body>
+</html>

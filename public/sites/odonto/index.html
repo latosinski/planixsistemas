@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OdontoClin | Excelência em Odontologia Moderna</title>
+    <meta name="description" content="Clínica odontológica premium. Tratamentos estéticos, ortodônticos e preventivos com tecnologia de ponta. Agende sua consulta.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --accent: #0F766E;
+            --accent-light: #2C9A8B;
+            --gold: #C9A66B;
+            --gold-light: #F5EDE0;
+            --white: #ffffff;
+            --bg-light: #F8FAFC;
+            --light-bg: #F8FAFC;
+            --text-dark: #0F172A;
+            --text-medium: #475569;
+            --text-light: #64748b;
+            --radius: 24px;
+            --radius-sm: 16px;
+            --shadow-sm: 0 4px 15px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 10px 40px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 15px 40px rgba(15, 23, 42, 0.12);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            color: var(--text-dark);
+            line-height: 1.6;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.15;
+            letter-spacing: -0.4px;
+        }
+        h1 { font-size: clamp(3rem, 5vw, 4.5rem); color: var(--white); }
+        h2 { font-size: clamp(2.2rem, 4vw, 3.2rem); margin-bottom: 1.5rem; color: var(--text-dark); }
+        h3 { font-size: 1.5rem; font-weight: 500; }
+        p { color: var(--text-medium); line-height: 1.8; }
+
+        .section-subtitle {
+            display: inline-block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: var(--accent);
+            background: rgba(44,122,123,0.08);
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+        section { padding: 6rem 0; position: relative; }
+
+        .img-fluid { max-width: 100%; height: auto; }
+
+        /* ========== HERO COM VÍDEO ========== */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 650px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #0b1e1f;
+        }
+        .hero-video {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
+            z-index: 0;
+            opacity: 0.45;
+            object-fit: cover;
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            max-width: 850px;
+            padding: 0 1rem;
+        }
+        .hero-content p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.2rem;
+            background: var(--white);
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: var(--transition);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(44,122,123,0.3);
+        }
+
+        /* ========== CABEÇALHO FLUTUANTE ========== */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            padding: 1.1rem 0;
+        }
+        /* Quando está sobre o hero (transparente) */
+        header.transparent {
+            background: rgba(11, 30, 31, 0.75);
+            backdrop-filter: blur(12px);
+            box-shadow: none;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            transition: color 0.3s;
+        }
+        .menu { display: flex; gap: 2.5rem; }
+        .menu a {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            transition: color 0.3s;
+            position: relative;
+        }
+        .menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px; left: 0;
+            width: 0; height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        header.transparent .menu a {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        header.transparent .logo {
+            color: white;
+        }
+        /* Botão toggle visível sobre o hero */
+        header.transparent .menu-toggle {
+            color: white;
+        }
+        .menu a:hover::after,
+        .menu a.active::after { width: 100%; }
+        .menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dark); }
+
+        /* ========== GRID LAYOUTS ========== */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+        .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+
+        /* ========== SOBRE ========== */
+        .about-image img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2.5rem; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.8rem; color: var(--accent); font-family: 'Playfair Display', serif; display: block; }
+        .stat-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); }
+
+        /* ========== SERVIÇOS ========== */
+        .service-card {
+            background: white;
+            padding: 2.8rem 2.2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid #f0f0f0;
+            text-align: center;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+        .service-icon {
+            font-size: 2.5rem;
+            color: var(--accent-light);
+            margin-bottom: 1.5rem;
+            background: rgba(44,122,123,0.08);
+            width: 70px; height: 70px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            margin-left: auto; margin-right: auto;
+        }
+
+        /* ========== ANTES E DEPOIS ========== */
+        .before-after-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .ba-card {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+        }
+        .ba-card img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+        .ba-card:hover img { transform: scale(1.05); }
+        .ba-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 2rem 1.5rem;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        .ba-card:hover .ba-overlay { transform: translateY(0); }
+        .ba-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        /* ========== DEPOIMENTOS EM CARROSSEL ========== */
+        .testimonial-slider {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 1rem;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .testimonial-slider::-webkit-scrollbar { display: none; }
+        .testimonial-card {
+            min-width: 320px;
+            background: white;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            scroll-snap-align: start;
+        }
+        .testimonial-text { font-style: italic; color: var(--text-medium); margin-bottom: 1.5rem; }
+        .testimonial-author { display: flex; align-items: center; gap: 1rem; }
+        .testimonial-author img {
+            width: 50px; height: 50px;
+            border-radius: 50%; object-fit: cover;
+        }
+
+        /* ========== BLOG ========== */
+        .blog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; }
+        .blog-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: white;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .blog-card img { width: 100%; height: 240px; object-fit: cover; }
+        .blog-card-body { padding: 2rem; }
+        .blog-date {
+            color: var(--accent);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .read-more {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .read-more:hover {
+            border-bottom-color: var(--accent);
+        }
+        /* Paginação */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+        }
+        .pagination button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .pagination button.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination button:not(:disabled):hover {
+            background: #e2e8f0;
+        }
+        .pagination button.active:hover {
+            background: var(--accent);
+        }
+
+        /* ========== CONTATO ========== */
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        .contact-info-panel {
+            background: var(--accent);
+            color: white;
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .contact-info-panel h2 { color: white; }
+        .contact-form-panel { padding: 3.5rem; }
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+        .form-control:focus { outline: none; border-color: var(--accent-light); box-shadow: 0 0 0 3px rgba(44,122,123,0.1); }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background: #0f172a;
+            color: white;
+            padding: 5rem 0 2rem;
+        }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 1.5rem; }
+        .footer-about { color: #94a3b8; line-height: 1.7; }
+        .footer-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; color: var(--accent-light); }
+        .footer-links a { color: #94a3b8; text-decoration: none; display: block; margin-bottom: 0.7rem; transition: color 0.3s; }
+        .footer-links a:hover { color: white; }
+        .social-icons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .social-icons a { color: white; background: rgba(255,255,255,0.1); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: var(--transition); }
+        .social-icons a:hover { background: var(--accent); transform: translateY(-3px); }
+
+        /* ========== WHATSAPP ========== */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: #25D366;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center; justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); }
+
+        /* ========== RESPONSIVO ========== */
+        @media (max-width: 1024px) {
+            .two-col, .four-col { grid-template-columns: 1fr; }
+            .three-col { grid-template-columns: repeat(2, 1fr); }
+            .before-after-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .menu {
+                position: fixed; top: 0; right: -100%;
+                width: 75%; height: 100vh;
+                background: white;
+                flex-direction: column;
+                padding: 6rem 2rem;
+                transition: 0.4s ease;
+                box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            }
+            .menu.active { right: 0; }
+            .menu-toggle { display: block; }
+            .three-col { grid-template-columns: 1fr; }
+            .contact-wrapper { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .before-after-grid { grid-template-columns: 1fr; }
+            .blog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero" id="home">
+        <!-- Vídeo de fundo simulado como imagem para garantia de carregamento -->
+        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="hero-video" alt="Clínica moderna">
+        <div class="hero-overlay"></div>
+        <header id="mainHeader" class="transparent">
+            <div class="container">
+                <nav class="nav">
+                    <div class="logo">OdontoClin</div>
+                    <div class="menu" id="menu">
+                        <a href="#home" class="active">Home</a>
+                        <a href="#sobre">Sobre</a>
+                        <a href="#servicos">Serviços</a>
+                        <a href="#resultados">Resultados</a>
+                        <a href="#depoimentos">Depoimentos</a>
+                        <a href="#blog">Blog</a>
+                        <a href="#contato">Contato</a>
+                    </div>
+                    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+                </nav>
+            </div>
+        </header>
+        <div class="hero-content">
+            <span class="section-subtitle" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 2rem;">Odontologia Premium</span>
+            <h1>O sorriso que você merece</h1>
+            <p>Na OdontoClin, unimos arte e ciência para oferecer tratamentos dentários personalizados em um ambiente de tranquilidade e conforto.</p>
+            <a href="#contato" class="btn">Agendar avaliação <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+
+    <main>
+        <section id="sobre">
+            <div class="container">
+                <div class="two-col">
+                    <div>
+                        <span class="section-subtitle">Nossa essência</span>
+                        <h2>Odontologia que transforma vidas</h2>
+                        <p>Há mais de 15 anos, a OdontoClin proporciona sorrisos saudáveis com tecnologia de ponta e atendimento humanizado. Nossa equipe é formada por especialistas apaixonados pelo que fazem.</p>
+                        <div class="stat-grid">
+                            <div class="stat-item"><span class="stat-number">8k+</span><span class="stat-label">Pacientes felizes</span></div>
+                            <div class="stat-item"><span class="stat-number">15</span><span class="stat-label">Anos de história</span></div>
+                            <div class="stat-item"><span class="stat-number">4.9</span><span class="stat-label">Avaliação Google</span></div>
+                        </div>
+                    </div>
+                    <div class="about-image">
+                        <img src="assets/img/img001.jpg" class="img-fluid" alt="nossa_essência">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="servicos" style="background: var(--light-bg);">
+            <div class="container">
+                <span class="section-subtitle">Nossas especialidades</span>
+                <h2>Tratamentos</h2>
+                <div class="three-col">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-tooth"></i></div>
+                        <h3>Clínico Geral</h3>
+                        <p>Prevenção, restaurações e limpezas com equipamentos modernos.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-teeth-open"></i></div>
+                        <h3>Ortodontia</h3>
+                        <p>Correção ortodôntica com alinhadores invisíveis e aparelhos estéticos.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fa-solid fa-face-smile"></i></div>
+                        <h3>Estética Dental</h3>
+                        <p>Clareamento, facetas de porcelana e lentes de contato para um sorriso harmônico.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultados">
+            <div class="container">
+                <span class="section-subtitle">Transformações reais</span>
+                <h2>Antes & Depois</h2>
+                <div class="before-after-grid">
+                    <div class="ba-card">
+                        <img src="assets/img/img002.jpg" class="img-fluid" alt="clareamento">
+                        <div class="ba-overlay"><div class="ba-label">Estética</div><h3>Clareamento</h3></div>
+                    </div>
+                    <div class="ba-card">
+                        <img src="assets/img/img003.jpg" class="img-fluid" alt="alinhadores">
+                        <div class="ba-overlay"><div class="ba-label">Ortodontia</div><h3>Alinhadores</h3></div>
+                    </div>
+                    <div class="ba-card">
+                        <img src="assets/img/img004.jpg" class="img-fluid" alt="escovação">
+                        <div class="ba-overlay"><div class="ba-label">Estética</div><h3>Escovação</h3></div>
+                    </div>
+                    <div class="ba-card">
+                        <img src="assets/img/img005.jpg" class="img-fluid" alt="prótese">
+                        <div class="ba-overlay"><div class="ba-label">Implantes</div><h3>Prótese</h3></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="depoimentos" style="background: var(--light-bg);">
+            <div class="container">
+                <span class="section-subtitle">Quem confia</span>
+                <h2>Depoimentos</h2>
+                <div class="testimonial-slider">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">"Finalmente perdi o medo de dentista! Atendimento acolhedor e resultado incrível."</div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana">
+                            <div><strong>Ana Carolina M.</strong><br><small>Paciente desde 2022</small></div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">"As facetas mudaram minha autoestima. Profissionais extremamente qualificados."</div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Ricardo">
+                            <div><strong>Ricardo Alves</strong><br><small>Tratamento estético</small></div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">"Meu filho adorou o atendimento infantil. Super recomendo para toda família."</div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Juliana">
+                            <div><strong>Juliana Souza</strong><br><small>Mãe do Lucas</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOG COM PAGINAÇÃO E LEIA MAIS -->
+        <section id="blog">
+            <div class="container">
+                <span class="section-subtitle">Blog OdontoClin</span>
+                <h2>Dicas para seu sorriso</h2>
+                <div class="blog-grid" id="blogGrid"></div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </section>
+
+        <section id="contato" style="background: var(--light-bg);">
+            <div class="container">
+                <div class="contact-wrapper">
+                    <div class="contact-info-panel">
+                        <h2>Agende sua consulta</h2>
+                        <p style="color: rgba(255,255,255,0.85); margin-top: 1.5rem;">Estamos prontos para cuidar do seu sorriso. Preencha o formulário e entraremos em contato em poucos minutos.</p>
+                        <div style="margin-top: 3rem;">
+                            <p style="color:white;"><i class="fas fa-phone"></i> (11) 3333-4444</p>
+                            <p style="color:white; margin-top:0.5rem;"><i class="fas fa-envelope"></i> contato@odontoclin.com.br</p>
+                            <p style="color:white; margin-top:0.5rem;"><i class="fas fa-map-marker-alt"></i> Rua Sorriso Perfeito, 456 - São Paulo</p>
+                        </div>
+                    </div>
+                    <div class="contact-form-panel">
+                        <form id="contactForm">
+                            <input type="text" placeholder="Nome completo" class="form-control" required>
+                            <input type="email" placeholder="Email" class="form-control" required>
+                            <input type="tel" placeholder="Telefone/WhatsApp" class="form-control" required>
+                            <select class="form-control">
+                                <option value="">Tratamento de interesse</option>
+                                <option>Avaliação geral</option>
+                                <option>Ortodontia</option>
+                                <option>Estética</option>
+                                <option>Implantes</option>
+                            </select>
+                            <textarea class="form-control" rows="3" placeholder="Mensagem (opcional)"></textarea>
+                            <button type="submit" class="btn" style="background: var(--accent); color: white; width: 100%; justify-content: center;">Enviar mensagem <i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">OdontoClin</div>
+                    <p class="footer-about">Sua clínica de confiança para tratamentos odontológicos completos. Tecnologia, conforto e resultados excepcionais.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-title">Navegação</div>
+                    <div class="footer-links">
+                        <a href="#sobre">Sobre</a>
+                        <a href="#servicos">Serviços</a>
+                        <a href="#resultados">Resultados</a>
+                        <a href="#depoimentos">Depoimentos</a>
+                        <a href="#blog">Blog</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-title">Contato</div>
+                    <div class="footer-links">
+                        <p>(11) 3333-4444</p>
+                        <p>contato@odontoclin.com.br</p>
+                        <p>Rua Sorriso Perfeito, 456</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-title">Horários</div>
+                    <div class="footer-links">
+                        <p>Seg-Sex: 8h às 19h</p>
+                        <p>Sáb: 8h às 13h</p>
+                        <p>Emergências: WhatsApp</p>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem; color: #64748b; font-size: 0.9rem;">
+                © 2026 OdontoClin. Todos os direitos reservados. | Desenvolvido pela @Designa
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/5511999999999" class="whatsapp-float" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+    <script>
+        // ========== MENU TOGGLE E SCROLL ==========
+        const menuToggle = document.getElementById('menuToggle');
+        const menu = document.getElementById('menu');
+        menuToggle.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            menuToggle.textContent = menu.classList.contains('active') ? '✕' : '☰';
+        });
+        document.querySelectorAll('.menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.remove('active');
+                menuToggle.textContent = '☰';
+                document.querySelectorAll('.menu a').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+        const header = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 100) {
+                header.classList.remove('transparent');
+            } else {
+                header.classList.add('transparent');
+            }
+        });
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Mensagem enviada com sucesso! Retornaremos em breve.');
+            this.reset();
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ========== BLOG DINÂMICO COM PAGINAÇÃO ==========
+        const blogPosts = [
+            {
+                img: 'assets/img/img005.jpg',
+                date: 'MAIO 2026',
+                title: 'Saúde bucal x saúde geral',
+                excerpt: 'Entenda como problemas dentários podem afetar seu coração e diabetes.',
+                link: '#'
+            },
+            {
+                img: 'assets/img/img003.jpg',
+                date: 'ABRIL 2026',
+                title: 'Invisalign: mitos e verdades',
+                excerpt: 'Tudo o que você precisa saber antes de iniciar um tratamento ortodôntico moderno.',
+                link: '#'
+            },
+            {
+                img: 'assets/img/img002.jpg',
+                date: 'MARÇO 2026',
+                title: 'Clareamento dental seguro',
+                excerpt: 'Descubra os métodos mais eficazes e os cuidados necessários para manter o sorriso branco.',
+                link: '#'
+            },
+            {
+                img: 'assets/img/img004.jpg',
+                date: 'FEVEREIRO 2026',
+                title: 'Implantes com tecnologia 3D',
+                excerpt: 'Como a cirurgia guiada reduz o tempo de recuperação e aumenta a precisão.',
+                link: '#'
+            },
+            {
+                img: 'assets/img/img001.jpg',
+                date: 'JANEIRO 2026',
+                title: 'Medo de dentista? Tem solução',
+                excerpt: 'Técnicas de sedação consciente que tornam o tratamento tranquilo e sem dor.',
+                link: '#'
+            },
+            {
+                img: 'assets/img/img005.jpg',
+                date: 'DEZEMBRO 2025',
+                title: 'Alimentação e saúde bucal',
+                excerpt: 'Alimentos que fortalecem os dentes e previnem cáries naturalmente.',
+                link: '#'
+            }
+        ];
+
+        const postsPerPage = 2;
+        let currentPage = 1;
+        const totalPages = Math.ceil(blogPosts.length / postsPerPage);
+
+        function renderPosts(page) {
+            const start = (page - 1) * postsPerPage;
+            const end = start + postsPerPage;
+            const postsToShow = blogPosts.slice(start, end);
+            const blogGrid = document.getElementById('blogGrid');
+
+            blogGrid.innerHTML = postsToShow.map(post => `
+                <article class="blog-card">
+                    <img src="${post.img}" alt="${post.title}">
+                    <div class="blog-card-body">
+                        <div class="blog-date">${post.date}</div>
+                        <h3>${post.title}</h3>
+                        <p>${post.excerpt}</p>
+                        <a href="${post.link}" class="read-more">Leia mais <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+
+            // Botão anterior
+            html += `<button ${currentPage === 1 ? 'disabled' : ''} data-page="prev">Anterior</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            // Botão próximo
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} data-page="next">Próximo</button>`;
+
+            pagination.innerHTML = html;
+
+            // Eventos
+            pagination.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pageAttr = this.getAttribute('data-page');
+                    if (pageAttr === 'prev') {
+                        if (currentPage > 1) currentPage--;
+                    } else if (pageAttr === 'next') {
+                        if (currentPage < totalPages) currentPage++;
+                    } else {
+                        currentPage = parseInt(pageAttr);
+                    }
+                    renderPosts(currentPage);
+                    renderPagination();
+                    // Voltar ao topo da seção blog para melhor UX
+                    document.getElementById('blog').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+        }
+
+        // Inicializar blog
+        renderPosts(currentPage);
+        renderPagination();
+    </script>
+</body>
+</html>

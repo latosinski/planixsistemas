@@ -1,0 +1,9 @@
+# Crie um arquivo chamado robots.txt na raiz do site
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /tmp/
+
+Sitemap: https://psicoterapiaintegrativa.com/sitemap.xml

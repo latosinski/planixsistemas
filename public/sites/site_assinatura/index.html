@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CutPack Studio — Arquivos de Corte para Embalagens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FDF8F5;
+            --bg-secondary: #F5F0EB;
+            --color-rose: #E8B4B8;
+            --color-rose-light: #F3D5D8;
+            --color-mint: #C8E6C9;
+            --color-mint-light: #E2F5E3;
+            --color-lavender: #D4C4FB;
+            --color-lavender-light: #EBE4FD;
+            --color-peach: #F5D0C5;
+            --color-peach-light: #FBEAE5;
+            --color-sky: #B3E5FC;
+            --color-sky-light: #E1F5FE;
+            --text-primary: #3D3D3D;
+            --text-secondary: #6B6B6B;
+            --text-muted: #9E9E9E;
+            --white: #FFFFFF;
+            --shadow-sm: 0 2px 8px rgba(61, 61, 61, 0.04);
+            --shadow-md: 0 8px 24px rgba(61, 61, 61, 0.06);
+            --shadow-lg: 0 16px 48px rgba(61, 61, 61, 0.08);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Header Fixo */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(253, 248, 245, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            transition: var(--transition);
+        }
+
+        .header.scrolled {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-rose), var(--color-lavender));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-rose), var(--color-lavender));
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        .nav a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 1.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-rose), var(--color-lavender));
+            color: var(--white);
+            box-shadow: 0 4px 16px rgba(232, 180, 184, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232, 180, 184, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--text-primary);
+            border: 1.5px solid rgba(0,0,0,0.06);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            margin: 5px 0;
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 10rem 2rem 6rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        .hero-content {
+            animation: fadeUp 1s ease-out;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--color-mint-light);
+            color: #2E7D32;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--color-rose), var(--color-lavender));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 90%;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-visual {
+            position: relative;
+            animation: fadeUp 1s ease-out 0.2s both;
+        }
+
+        .hero-image-main {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            object-fit: cover;
+            height: 500px;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: var(--white);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-card-1 {
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .floating-card-2 {
+            bottom: 15%;
+            right: -8%;
+            animation-delay: 3s;
+        }
+
+        .floating-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .floating-icon.pink { background: var(--color-rose-light); }
+        .floating-icon.purple { background: var(--color-lavender-light); }
+
+        /* Seções */
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Produtos */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .product-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-image-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-tag {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .tag-new { background: var(--color-mint-light); color: #2E7D32; }
+        .tag-popular { background: var(--color-peach-light); color: #BF360C; }
+        .tag-sale { background: var(--color-rose-light); color: #C62828; }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-info h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .product-price .old {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin-left: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Benefícios */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .benefit-card {
+            background: var(--white);
+            padding: 2.5rem 2rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .benefit-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .benefit-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .benefit-card h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .benefit-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Preços / Planos */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Alterado: 3 colunas fixas */
+            gap: 1.5rem; /* Reduzido o espaçamento */
+            max-width: 1200px; /* Aumentado para acomodar 3 cards */
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem; /* Reduzido de 2.5rem */
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .pricing-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--color-lavender);
+            transform: scale(1.02);
+        }
+
+        .pricing-card.featured.visible {
+            transform: scale(1.02);
+        }
+
+        .pricing-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.4rem 1.2rem;
+            background: linear-gradient(135deg, var(--color-rose), var(--color-lavender));
+            color: white;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 1.5rem; /* Reduzido */
+        }
+
+        .pricing-header h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 2.5rem; /* Reduzido de 3rem */
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 1.5rem; /* Reduzido */
+        }
+
+        .pricing-features li {
+            padding: 0.6rem 0; /* Reduzido */
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        /* Contato */
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .contact-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info > p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .contact-item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .contact-item h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-item p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .contact-form {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid rgba(0,0,0,0.06);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-lavender);
+            background: var(--white);
+            box-shadow: 0 0 0 4px var(--color-lavender-light);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: rgba(255,255,255,0.7);
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .logo {
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            max-width: 300px;
+        }
+
+        .footer-column h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-column a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .social-links a:hover {
+            background: var(--color-rose);
+            transform: translateY(-3px);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--color-rose-light), var(--color-lavender-light), var(--color-mint-light));
+            border-radius: var(--radius-lg);
+            padding: 4rem;
+            text-align: center;
+            margin: 2rem auto 0;
+            max-width: 1280px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Animações */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsivo */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
+            }
+
+            .hero p {
+                max-width: 100%;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                order: -1;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            /* Ajuste para a grade de preços em tablets */
+            .pricing-grid {
+                grid-template-columns: 1fr 1fr; /* 2 colunas em telas médias */
+                max-width: 700px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--bg-primary);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                box-shadow: var(--shadow-md);
+                transform: translateY(-150%);
+                transition: var(--transition);
+                z-index: 999;
+            }
+
+            .nav.active {
+                transform: translateY(0);
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .floating-card {
+                display: none;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .cta-section h2 {
+                font-size: 1.75rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            /* Empilhar os cards de preço em mobile */
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 420px;
+                margin: 0 auto;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-inner {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 8rem 1rem 4rem;
+            }
+
+            .section {
+                padding: 3rem 1rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-rose);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-lavender);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">✂</div>
+                CutPack
+            </a>
+            <nav class="nav" id="nav">
+                <a href="#produtos">Produtos</a>
+                <a href="#beneficios">Benefícios</a>
+                <a href="#precos">Preços</a>
+                <a href="#contato">Contato</a>
+                <a href="#contato" class="btn btn-primary">Começar Agora</a>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>✨</span> Mais de 10.000 designers confiam na CutPack
+            </div>
+            <h1>Embalagens que <span>encantam</span>, prontas para cortar</h1>
+            <p>Arquivos digitais profissionais para embalagens em papel, cartolina e MDF. Download instantâneo, compatível com todas as plotters e impressoras. Eleve a apresentação dos seus produtos.</p>
+            <div class="hero-buttons">
+                <a href="#produtos" class="btn btn-primary">Explorar Arquivos</a>
+                <a href="#beneficios" class="btn btn-secondary">Como Funciona</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80" alt="Embalagens artesanais" class="hero-image-main">
+            <div class="floating-card floating-card-1">
+                <div class="floating-icon pink">📦</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">+500 Modelos</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Atualizados mensalmente</div>
+                </div>
+            </div>
+            <div class="floating-card floating-card-2">
+                <div class="floating-icon purple">⚡</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Download Imediato</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Após a confirmação</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Produtos -->
+    <section class="section" id="produtos">
+        <div class="section-header">
+            <span class="section-label" style="background: var(--color-rose-light); color: #C62828;">Catálogo</span>
+            <h2>Arquivos mais vendidos</h2>
+            <p>Modelos vetorizados, com linhas de corte e vinco perfeitamente calibradas. Compatíveis com Silhouette, Cricut, Roland e outras.</p>
+        </div>
+        <div class="products-grid">
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80" alt="Caixa de Presente" class="product-image">
+                    <span class="product-tag tag-popular">Mais Vendido</span>
+                </div>
+                <div class="product-info">
+                    <h3>Caixa de Presente Dobrável</h3>
+                    <p>Caixa estilo explosão com fecho magnético. Ideal para presentes, doces e cosméticos. Inclui versão em 3 tamanhos.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 29,90</div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80" alt="Embalagem para Doces" class="product-image">
+                    <span class="product-tag tag-new">Novo</span>
+                </div>
+                <div class="product-info">
+                    <h3>Embalagem para Doces e Brigadeiros</h3>
+                    <p>Display com divisórias para 6 unidades. Visor em acetato e alça de transporte. Perfeita para festas e eventos.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 19,90</div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=600&q=80" alt="Caixa para Caneca" class="product-image">
+                </div>
+                <div class="product-info">
+                    <h3>Caixa Protetora para Caneca</h3>
+                    <p>Estrutura reforçada com berço interno. Fechamento em trava sem cola. Proteção garantida para transporte e envio.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 24,90</div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1558171813-4c088753af8f?auto=format&fit=crop&w=600&q=80" alt="Sacola Kraft" class="product-image">
+                    <span class="product-tag tag-sale">-20%</span>
+                </div>
+                <div class="product-info">
+                    <h3>Sacola de Papel Kraft com Alça</h3>
+                    <p>Modelo clássico com fundo reforçado. Alça de fita ou trançada. Área frontal para personalização com logo.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 34,90 <span class="old">R$ 43,90</span></div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1617825295690-28ae56c56135?auto=format&fit=crop&w=600&q=80" alt="Caixa de Presente" class="product-image">
+                </div>
+                <div class="product-info">
+                    <h3>Display para Balcão em Cartolina</h3>
+                    <p>Expositor auto-sustentável com 3 prateleiras. Montagem em 30 segundos. Ideal para pontos de venda e feiras.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 39,90</div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+
+            <article class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&w=600&q=80" alt="Caixa E-commerce" class="product-image">
+                    <span class="product-tag tag-popular">Mais Vendido</span>
+                </div>
+                <div class="product-info">
+                    <h3>Caixa de Envio E-commerce</h3>
+                    <p>Modelo sedex com abas de segurança. Otimizada para correios e transportadoras. Resistente a impactos e umidade.</p>
+                    <div class="product-meta">
+                        <div class="product-price">R$ 44,90</div>
+                        <a href="#contato" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">Comprar</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Benefícios -->
+    <section class="section" id="beneficios" style="background: var(--bg-secondary); margin: 0; max-width: 100%; padding: 5rem 2rem;">
+        <div style="max-width: 1280px; margin: 0 auto;">
+            <div class="section-header">
+                <span class="section-label" style="background: var(--color-mint-light); color: #2E7D32;">Por que escolher</span>
+                <h2>Feito para quem valoriza detalhes</h2>
+                <p>Cada arquivo é testado em produção real antes de ir para o catálogo. Economize tempo e evite desperdício de material.</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: var(--color-rose-light);">📐</div>
+                    <h3>Medidas Precisas</h3>
+                    <p>Arquivos calibrados com margem de erro inferior a 0,2mm. Compatível com plotters de corte profissionais e domésticas.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: var(--color-lavender-light);">🎨</div>
+                    <h3>100% Editáveis</h3>
+                    <p>Receba os arquivos em AI, EPS, PDF e SVG. Personalize cores, textos e dimensões no Illustrator, Corel ou Inkscape.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: var(--color-mint-light);">🚀</div>
+                    <h3>Entrega Imediata</h3>
+                    <p>Download automático após aprovação do pagamento. Acesse seus arquivos quantas vezes quiser pela sua conta.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon" style="background: var(--color-peach-light);">🛡️</div>
+                    <h3>Garantia de 7 Dias</h3>
+                    <p>Se o arquivo não funcionar na sua máquina ou tiver qualquer defeito, devolvemos 100% do valor, sem burocracia.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preços -->
+    <section class="section" id="precos">
+        <div class="section-header">
+            <span class="section-label" style="background: var(--color-lavender-light); color: #5E35B1;">Investimento</span>
+            <h2>Escolha seu plano</h2>
+            <p>Do projeto pontual ao estúdio em crescimento. Todos os planos incluem licença comercial e suporte técnico.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Unitário</h3>
+                    <div class="pricing-price">R$ 29<span>,90</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">por arquivo</p>
+                </div>
+                <ul class="pricing-features">
+                    <li><span class="check-icon" style="background: var(--color-mint-light); color: #2E7D32;">✓</span> 1 arquivo de corte</li>
+                    <li><span class="check-icon" style="background: var(--color-mint-light); color: #2E7D32;">✓</span> Formatos AI, EPS, PDF, SVG</li>
+                    <li><span class="check-icon" style="background: var(--color-mint-light); color: #2E7D32;">✓</span> Licença comercial</li>
+                    <li><span class="check-icon" style="background: var(--color-mint-light); color: #2E7D32;">✓</span> Suporte por e-mail</li>
+                    <li><span class="check-icon" style="background: var(--color-mint-light); color: #2E7D32;">✓</span> Acesso vitalício ao arquivo</li>
+                </ul>
+                <a href="#contato" class="btn btn-secondary" style="width: 100%;">Comprar Unitário</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Mais Popular</div>
+                <div class="pricing-header">
+                    <h3>Studio Pro</h3>
+                    <div class="pricing-price">R$ 97<span>,00</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">por mês</p>
+                </div>
+                <ul class="pricing-features">
+                    <li><span class="check-icon" style="background: var(--color-lavender-light); color: #5E35B1;">✓</span> Acesso ilimitado ao catálogo</li>
+                    <li><span class="check-icon" style="background: var(--color-lavender-light); color: #5E35B1;">✓</span> 10 downloads por mês</li>
+                    <li><span class="check-icon" style="background: var(--color-lavender-light); color: #5E35B1;">✓</span> Novidades toda semana</li>
+                    <li><span class="check-icon" style="background: var(--color-lavender-light); color: #5E35B1;">✓</span> Suporte prioritário</li>
+                    <li><span class="check-icon" style="background: var(--color-lavender-light); color: #5E35B1;">✓</span> Comunidade exclusiva</li>
+                </ul>
+                <a href="#contato" class="btn btn-primary" style="width: 100%;">Assinar Pro</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Empresarial</h3>
+                    <div class="pricing-price">R$ 297<span>,00</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">por mês</p>
+                </div>
+                <ul class="pricing-features">
+                    <li><span class="check-icon" style="background: var(--color-peach-light); color: #BF360C;">✓</span> Tudo do Studio Pro</li>
+                    <li><span class="check-icon" style="background: var(--color-peach-light); color: #BF360C;">✓</span> Downloads ilimitados</li>
+                    <li><span class="check-icon" style="background: var(--color-peach-light); color: #BF360C;">✓</span> Até 5 usuários</li>
+                    <li><span class="check-icon" style="background: var(--color-peach-light); color: #BF360C;">✓</span> Arquivos personalizados</li>
+                    <li><span class="check-icon" style="background: var(--color-peach-light); color: #BF360C;">✓</span> Suporte com WhatsApp</li>
+                </ul>
+                <a href="#contato" class="btn btn-secondary" style="width: 100%;">Falar com Vendas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" style="padding-bottom: 0;">
+        <div class="cta-section">
+            <div class="cta-content">
+                <h2>Pronto para transformar suas embalagens?</h2>
+                <p>Junte-se a milhares de designers, artesãos e empresários que já economizam horas de trabalho com nossos arquivos prontos.</p>
+                <a href="#contato" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Quero Começar Agora →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato -->
+    <section class="section" id="contato">
+        <div class="contact-wrapper">
+            <div class="contact-info">
+                <span class="section-label" style="background: var(--color-sky-light); color: #0277BD;">Fale Conosco</span>
+                <h2>Vamos conversar sobre seu projeto</h2>
+                <p>Seja para tirar dúvidas sobre um arquivo, solicitar um modelo personalizado ou entender melhor nossos planos, nossa equipe responde em até 4 horas úteis.</p>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <div class="contact-item-icon" style="background: var(--color-rose-light);">📧</div>
+                        <div>
+                            <h4>E-mail</h4>
+                            <p>ola@cutpack.studio</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon" style="background: var(--color-mint-light);">💬</div>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p>(11) 99999-8888</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon" style="background: var(--color-lavender-light);">🕐</div>
+                        <div>
+                            <h4>Horário de Atendimento</h4>
+                            <p>Segunda a Sexta, das 9h às 18h (BRT)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form class="contact-form" id="contactForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nome">Nome completo</label>
+                        <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="assunto">Assunto</label>
+                    <select id="assunto" name="assunto" required>
+                        <option value="">Selecione um assunto</option>
+                        <option value="compra">Compra de arquivo unitário</option>
+                        <option value="assinatura">Assinatura Studio Pro</option>
+                        <option value="empresarial">Plano Empresarial</option>
+                        <option value="personalizado">Modelo personalizado</option>
+                        <option value="suporte">Suporte técnico</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mensagem">Mensagem</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Conte-nos o que você precisa..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Mensagem</button>
+                <p id="formFeedback" style="text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none;"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">✂</div>
+                        CutPack
+                    </a>
+                    <p>Arquivos de corte profissionais para embalagens. Economize tempo, reduza desperdício e encante seus clientes com apresentações impecáveis.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Produtos</h4>
+                    <ul>
+                        <li><a href="#produtos">Caixas e Embalagens</a></li>
+                        <li><a href="#produtos">Sacolas e Sacos</a></li>
+                        <li><a href="#produtos">Displays e Expositores</a></li>
+                        <li><a href="#produtos">Tags e Rótulos</a></li>
+                        <li><a href="#produtos">Kits Completos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="#beneficios">Como Funciona</a></li>
+                        <li><a href="#precos">Preços</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Afiliados</a></li>
+                        <li><a href="#contato">Trabalhe Conosco</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="#contato">Central de Ajuda</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                        <li><a href="#">Licença de Uso</a></li>
+                        <li><a href="#">Política de Reembolso</a></li>
+                        <li><a href="#">Termos de Serviço</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 CutPack Studio. Todos os direitos reservados.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram">IG</a>
+                    <a href="#" aria-label="Pinterest">PI</a>
+                    <a href="#" aria-label="YouTube">YT</a>
+                    <a href="#" aria-label="Behance">BE</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const nav = document.getElementById('nav');
+        let menuOpen = false;
+
+        mobileMenuBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            nav.classList.toggle('active', menuOpen);
+            const spans = mobileMenuBtn.querySelectorAll('span');
+            if (menuOpen) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
+
+        // Close mobile menu on link click
+        nav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (menuOpen) {
+                    menuOpen = false;
+                    nav.classList.remove('active');
+                    const spans = mobileMenuBtn.querySelectorAll('span');
+                    spans[0].style.transform = 'none';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'none';
+                }
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.product-card, .benefit-card, .pricing-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Form handling
+        const contactForm = document.getElementById('contactForm');
+        const formFeedback = document.getElementById('formFeedback');
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = contactForm.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                formFeedback.style.display = 'block';
+                formFeedback.style.color = '#2E7D32';
+                formFeedback.textContent = '✓ Mensagem enviada com sucesso! Responderemos em breve.';
+                contactForm.reset();
+                setTimeout(() => {
+                    formFeedback.style.display = 'none';
+                }, 5000);
+            }, 1500);
+        });
+
+        // Smooth scroll for anchor links (fallback for older browsers)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
