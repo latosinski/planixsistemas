@@ -1,66 +1,67 @@
-// Página Fluxo de Caixa – Visão Diária com paginação mensal
+/**
+ * Página Fluxo de Caixa – Visão Diária com paginação mensal.
+ * Usa o período global (PeriodStore).
+ */
 window.FluxoCaixaPage = (function() {
-  let mesAtual, anoAtual;
   let resizeObserver = null;
+  let periodHandler = null;
 
-  function initData() {
-    const hoje = new Date();
-    mesAtual = hoje.getMonth(); // 0-11
-    anoAtual = hoje.getFullYear();
-  }
+  function obterDadosDiarios() {
+    const p = PeriodStore.get();
+    const todos = Storage.get(Storage.KEYS.LANCAMENTOS) || [];
 
-  function alterarMes(delta) {
-    mesAtual += delta;
-    if (mesAtual < 0) {
-      mesAtual = 11;
-      anoAtual--;
-    } else if (mesAtual > 11) {
-      mesAtual = 0;
-      anoAtual++;
-    }
-    renderizarMes();
-  }
+    const doMes = todos.filter(l => {
+      const d = Utils.parseDate(l.data);
+      return d && d.getFullYear() === p.ano && d.getMonth() === p.mes;
+    });
 
-  function formatarMesAno() {
-    return new Date(anoAtual, mesAtual).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  }
+    const mapa = {};
+    doMes.forEach(l => {
+      const d = Utils.parseDate(l.data);
+      if (!d) return;
+      const dia = d.getDate();
+      if (!mapa[dia]) mapa[dia] = { dia, entradas: 0, saidas: 0, saldo: 0, saldoAcumulado: 0 };
+      if (l.tipo === 'receita') mapa[dia].entradas += l.valor;
+      else mapa[dia].saidas += l.valor;
+    });
 
-  function construirDados() {
-    const lancamentos = Storage.get(Storage.KEYS.LANCAMENTOS) || [];
-    const diasNoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
-    const diario = [];
-    let saldoAcumulado = 0;
-    for (let dia = 1; dia <= diasNoMes; dia++) {
-      const dataStr = `${anoAtual}-${String(mesAtual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-      const doDia = lancamentos.filter(l => l.data === dataStr);
-      const entradas = doDia.filter(l => l.tipo === 'receita').reduce((acc, l) => acc + l.valor, 0);
-      const saidas = doDia.filter(l => l.tipo === 'despesa').reduce((acc, l) => acc + l.valor, 0);
-      saldoAcumulado += entradas - saidas;
-      diario.push({ dia, data: dataStr, entradas, saidas, saldo: entradas - saidas, saldoAcumulado });
-    }
+    const diario = Object.values(mapa).sort((a, b) => a.dia - b.dia);
+
+    let acumulado = 0;
+    diario.forEach(d => {
+      d.saldo = d.entradas - d.saidas;
+      acumulado += d.saldo;
+      d.saldoAcumulado = acumulado;
+    });
+
     return diario;
   }
 
-  function renderizarMes() {
+  function render() {
+    if (periodHandler) {
+      window.removeEventListener('periodchange', periodHandler);
+      periodHandler = null;
+    }
+    if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
+
     const main = document.getElementById('main-content');
     if (!main) return;
 
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-      resizeObserver = null;
-    }
+    const p = PeriodStore.get();
+    const tituloMes = new Date(p.ano, p.mes).toLocaleDateString('pt-BR', {
+      month: 'long', year: 'numeric'
+    });
+    const tituloMesCap = tituloMes.charAt(0).toUpperCase() + tituloMes.slice(1);
 
-    const diario = construirDados();
+    const diario = obterDadosDiarios();
 
     main.innerHTML = `
       <div class="card">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <button id="btn-mes-anterior" class="btn btn-outline" style="margin-right:auto;">← Mês anterior</button>
-          <h3 class="card-title" style="margin:0 1rem;">${formatarMesAno()}</h3>
-          <button id="btn-proximo-mes" class="btn btn-outline" style="margin-left:auto;">Próximo mês →</button>
+        <div class="card-header">
+          <h3 class="card-title">Fluxo de Caixa Diário — ${tituloMesCap}</h3>
         </div>
-        <div class="chart-container" style="height:300px; margin-bottom:1.5rem;">
-          <canvas id="fluxo-linha-chart"></canvas>
+        <div class="chart-container" style="height:280px; margin-bottom:16px;">
+          <canvas id="fluxo-chart"></canvas>
         </div>
         <div class="table-container">
           <table>
@@ -74,80 +75,58 @@ window.FluxoCaixaPage = (function() {
               </tr>
             </thead>
             <tbody>
-              ${diario.map(d => {
-                const saldoClass = d.saldo >= 0 ? 'success' : 'danger';
-                const acumClass = d.saldoAcumulado >= 0 ? 'success' : 'danger';
-                return `
-                  <tr>
-                    <td>${d.dia}/${String(mesAtual + 1).padStart(2, '0')}</td>
-                    <td class="success">R$ ${d.entradas.toFixed(2)}</td>
-                    <td class="danger">R$ ${d.saidas.toFixed(2)}</td>
-                    <td class="${saldoClass}">R$ ${d.saldo.toFixed(2)}</td>
-                    <td class="${acumClass}">R$ ${d.saldoAcumulado.toFixed(2)}</td>
-                  </tr>`;
-              }).join('')}
+              ${diario.length ? diario.map(d => `
+                <tr>
+                  <td>${d.dia}/${String(p.mes + 1).padStart(2, '0')}</td>
+                  <td class="success">${Utils.formatCurrency(d.entradas)}</td>
+                  <td class="danger">${Utils.formatCurrency(d.saidas)}</td>
+                  <td class="${d.saldo >= 0 ? 'success' : 'danger'}">${Utils.formatCurrency(d.saldo)}</td>
+                  <td class="${d.saldoAcumulado >= 0 ? 'success' : 'danger'}">${Utils.formatCurrency(d.saldoAcumulado)}</td>
+                </tr>`).join('') : '<tr><td colspan="5" style="text-align:center; padding:2rem;">Nenhum lançamento neste mês</td></tr>'}
             </tbody>
           </table>
         </div>
       </div>
     `;
 
-    // Eventos de navegação
-    document.getElementById('btn-mes-anterior').addEventListener('click', () => alterarMes(-1));
-    document.getElementById('btn-proximo-mes').addEventListener('click', () => alterarMes(1));
-
-    // Gráfico
     requestAnimationFrame(() => {
-      const canvas = document.getElementById('fluxo-linha-chart');
+      const canvas = document.getElementById('fluxo-chart');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const labels = diario.map(d => d.dia);
-      const saldoData = diario.map(d => d.saldoAcumulado);
+      const labels = diario.map(d => `${d.dia}/${String(p.mes + 1).padStart(2, '0')}`);
+      const entradasData = diario.map(d => d.entradas);
+      const saidasData = diario.map(d => d.saidas);
 
       const chart = Charts.createChart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
           labels: labels,
-          datasets: [{
-            label: 'Saldo Acumulado',
-            data: saldoData,
-            borderColor: Charts.getThemeColors().primary,
-            backgroundColor: 'transparent',
-            tension: 0.3,
-            pointRadius: 3,
-            borderWidth: 2
-          }]
+          datasets: [
+            { label: 'Entradas', data: entradasData, backgroundColor: Charts.getThemeColors().success, borderRadius: 4 },
+            { label: 'Saídas', data: saidasData, backgroundColor: Charts.getThemeColors().danger, borderRadius: 4 }
+          ]
         },
         options: {
           ...Charts.defaultOptions(),
-          plugins: {
-            legend: { display: false }
-          },
           scales: {
             ...Charts.defaultOptions().scales,
-            y: {
-              ...Charts.defaultOptions().scales.y,
-              title: { display: true, text: 'Saldo (R$)', color: Charts.getThemeColors().textSecondary }
-            }
+            x: { ...Charts.defaultOptions().scales.x, title: { display: true, text: 'Dia' } },
+            y: { ...Charts.defaultOptions().scales.y, beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
           }
         }
       });
 
       const container = canvas.parentElement;
       if (container) {
-        resizeObserver = new ResizeObserver(() => {
-          if (chart && chart.resize) chart.resize();
-        });
+        resizeObserver = new ResizeObserver(() => chart && chart.resize && chart.resize());
         resizeObserver.observe(container);
       }
     });
-  }
 
-  function render() {
-    initData();
-    renderizarMes();
+    periodHandler = function() { render(); };
+    window.addEventListener('periodchange', periodHandler);
   }
 
   return { render };

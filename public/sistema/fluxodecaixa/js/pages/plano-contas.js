@@ -1,19 +1,28 @@
-// Página Plano de Contas – CRUD de categorias de receitas e despesas
+/**
+ * Página Plano de Contas – CRUD de categorias de receitas e despesas.
+ */
 window.PlanoContasPage = (function() {
   let receitas = [];
   let despesas = [];
+  let lancamentos = [];
 
   function carregar() {
     receitas = Storage.get(Storage.KEYS.PLANO_CONTAS_RECEITAS) || [];
     despesas = Storage.get(Storage.KEYS.PLANO_CONTAS_DESPESAS) || [];
+    lancamentos = Storage.get(Storage.KEYS.LANCAMENTOS) || [];
   }
 
-  function salvarReceitas() {
-    Storage.set(Storage.KEYS.PLANO_CONTAS_RECEITAS, receitas);
+  function salvarReceitas() { Storage.set(Storage.KEYS.PLANO_CONTAS_RECEITAS, receitas); }
+  function salvarDespesas() { Storage.set(Storage.KEYS.PLANO_CONTAS_DESPESAS, despesas); }
+
+  function contarLancamentosVinculados(tipo, categoriaId) {
+    return lancamentos.filter(l => l.tipo === tipo && l.categoriaId === categoriaId).length;
   }
 
-  function salvarDespesas() {
-    Storage.set(Storage.KEYS.PLANO_CONTAS_DESPESAS, despesas);
+  function nomeJaExiste(tipo, nome, idIgnorar) {
+    const lista = tipo === 'receita' ? receitas : despesas;
+    const alvo = nome.trim().toLowerCase();
+    return lista.some(c => c.id !== idIgnorar && c.nome.trim().toLowerCase() === alvo);
   }
 
   function renderTabelas() {
@@ -24,7 +33,7 @@ window.PlanoContasPage = (function() {
       tbodyRec.innerHTML = receitas.length
         ? receitas.map(r => `
             <tr>
-              <td>${r.nome}</td>
+              <td>${Utils.escapeHtml(r.nome)}</td>
               <td>
                 <button class="btn-acao editar" data-id="${r.id}" data-tipo="receita"><i class="fas fa-pen"></i></button>
                 <button class="btn-acao excluir" data-id="${r.id}" data-tipo="receita"><i class="fas fa-trash"></i></button>
@@ -32,12 +41,11 @@ window.PlanoContasPage = (function() {
             </tr>`).join('')
         : '<tr><td colspan="2" style="text-align:center;">Nenhuma categoria de receita</td></tr>';
     }
-
     if (tbodyDesp) {
       tbodyDesp.innerHTML = despesas.length
         ? despesas.map(d => `
             <tr>
-              <td>${d.nome}</td>
+              <td>${Utils.escapeHtml(d.nome)}</td>
               <td>
                 <button class="btn-acao editar" data-id="${d.id}" data-tipo="despesa"><i class="fas fa-pen"></i></button>
                 <button class="btn-acao excluir" data-id="${d.id}" data-tipo="despesa"><i class="fas fa-trash"></i></button>
@@ -46,7 +54,6 @@ window.PlanoContasPage = (function() {
         : '<tr><td colspan="2" style="text-align:center;">Nenhuma categoria de despesa</td></tr>';
     }
 
-    // Eventos de editar e excluir
     document.querySelectorAll('#plano-receitas-tbody .btn-acao, #plano-despesas-tbody .btn-acao').forEach(btn => {
       btn.addEventListener('click', function() {
         const id = parseInt(this.dataset.id);
@@ -58,40 +65,58 @@ window.PlanoContasPage = (function() {
   }
 
   function excluir(tipo, id) {
-    if (!confirm('Excluir esta categoria? Pode afetar lançamentos já cadastrados.')) return;
-    if (tipo === 'receita') {
-      receitas = receitas.filter(r => r.id !== id);
-      salvarReceitas();
-    } else {
-      despesas = despesas.filter(d => d.id !== id);
-      salvarDespesas();
+    const lista = tipo === 'receita' ? receitas : despesas;
+    const item = lista.find(i => i.id === id);
+    if (!item) return;
+
+    const vinculos = contarLancamentosVinculados(tipo, id);
+    let mensagem = `Deseja excluir a categoria "${item.nome}"?`;
+    if (vinculos > 0) {
+      mensagem += `\n\nAtenção: existem ${vinculos} lançamento(s) usando esta categoria. ` +
+                  `Eles continuarão existindo, mas ficarão sem categoria válida.`;
     }
-    renderTabelas();
-    UI.showToast('Categoria excluída.', 'success');
+
+    UI.confirm(mensagem, function() {
+      if (tipo === 'receita') {
+        receitas = receitas.filter(r => r.id !== id);
+        salvarReceitas();
+      } else {
+        despesas = despesas.filter(d => d.id !== id);
+        salvarDespesas();
+      }
+      UI.showToast('Categoria excluída.', 'success');
+      renderTabelas();
+    }, { title: 'Excluir Categoria', confirmText: 'Excluir', confirmClass: 'btn-danger' });
   }
 
   function abrirModalEdicao(tipo, id) {
     const lista = tipo === 'receita' ? receitas : despesas;
     const item = lista.find(i => i.id === id);
-    if (!item) return;
+    if (!item) { UI.showToast('Categoria não encontrada.', 'error'); return; }
+
     const html = `
-      <form id="form-editar-categoria">
+      <form id="form-editar-categoria" novalidate>
         <div class="form-group">
-          <label class="form-label">Nome da Categoria</label>
-          <input id="edit-nome" class="form-input" value="${item.nome}" required>
+          <label class="form-label">Nome da Categoria *</label>
+          <input id="edit-nome" class="form-input" maxlength="80" value="${Utils.escapeHtml(item.nome)}" required>
         </div>
         <input type="hidden" id="edit-tipo" value="${tipo}">
         <input type="hidden" id="edit-id" value="${id}">
-        <button type="submit" class="btn" style="width:100%">Salvar</button>
+        <button type="submit" class="btn btn-primary" style="width:100%">Salvar</button>
       </form>
     `;
     UI.showModal('Editar Categoria', html);
+
     document.getElementById('form-editar-categoria').addEventListener('submit', function(e) {
       e.preventDefault();
       const novoNome = document.getElementById('edit-nome').value.trim();
       const editId = parseInt(document.getElementById('edit-id').value);
-      if (!novoNome) return;
-      if (tipo === 'receita') {
+      const editTipo = document.getElementById('edit-tipo').value;
+
+      if (!novoNome) { UI.showToast('O nome da categoria é obrigatório.', 'error'); document.getElementById('edit-nome').focus(); return; }
+      if (nomeJaExiste(editTipo, novoNome, editId)) { UI.showToast(`Já existe uma categoria "${novoNome}" neste tipo.`, 'error'); return; }
+
+      if (editTipo === 'receita') {
         const idx = receitas.findIndex(r => r.id === editId);
         if (idx !== -1) receitas[idx].nome = novoNome;
         salvarReceitas();
@@ -108,28 +133,28 @@ window.PlanoContasPage = (function() {
 
   function abrirModalNova(tipo) {
     const html = `
-      <form id="form-nova-categoria">
+      <form id="form-nova-categoria" novalidate>
         <div class="form-group">
-          <label class="form-label">Nome da Categoria</label>
-          <input id="nova-nome" class="form-input" placeholder="Ex: Vendas, Salários..." required>
+          <label class="form-label">Nome da Categoria *</label>
+          <input id="nova-nome" class="form-input" maxlength="80" placeholder="Ex: Vendas, Salários..." required>
         </div>
         <input type="hidden" id="nova-tipo" value="${tipo}">
-        <button type="submit" class="btn" style="width:100%">Adicionar</button>
+        <button type="submit" class="btn btn-primary" style="width:100%">Adicionar</button>
       </form>
     `;
     UI.showModal('Nova Categoria', html);
+
     document.getElementById('form-nova-categoria').addEventListener('submit', function(e) {
       e.preventDefault();
       const nome = document.getElementById('nova-nome').value.trim();
-      if (!nome) return;
-      const novo = { id: Date.now(), nome, tipo };
-      if (tipo === 'receita') {
-        receitas.push(novo);
-        salvarReceitas();
-      } else {
-        despesas.push(novo);
-        salvarDespesas();
-      }
+      const novoTipo = document.getElementById('nova-tipo').value;
+
+      if (!nome) { UI.showToast('O nome da categoria é obrigatório.', 'error'); document.getElementById('nova-nome').focus(); return; }
+      if (nomeJaExiste(novoTipo, nome, null)) { UI.showToast(`Já existe uma categoria "${nome}" neste tipo.`, 'error'); return; }
+
+      const nova = { id: Utils.gerarId(), nome, tipo: novoTipo };
+      if (novoTipo === 'receita') { receitas.push(nova); salvarReceitas(); }
+      else { despesas.push(nova); salvarDespesas(); }
       UI.hideModal();
       UI.showToast('Categoria adicionada.', 'success');
       renderTabelas();
@@ -142,15 +167,15 @@ window.PlanoContasPage = (function() {
     if (!main) return;
 
     main.innerHTML = `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+      <div class="plano-grid">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Receitas</h3>
-            <button id="btn-nova-receita" class="btn">+ Nova</button>
+            <button id="btn-nova-receita" class="btn btn-primary">+ Nova</button>
           </div>
-          <div class="table-container">
+          <div class="table-container" style="margin-top:0;">
             <table>
-              <thead><tr><th>Categoria</th><th>Ações</th></tr></thead>
+              <thead><tr><th>Categoria</th><th style="width:100px;">Ações</th></tr></thead>
               <tbody id="plano-receitas-tbody"></tbody>
             </table>
           </div>
@@ -158,11 +183,11 @@ window.PlanoContasPage = (function() {
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Despesas</h3>
-            <button id="btn-nova-despesa" class="btn">+ Nova</button>
+            <button id="btn-nova-despesa" class="btn btn-primary">+ Nova</button>
           </div>
-          <div class="table-container">
+          <div class="table-container" style="margin-top:0;">
             <table>
-              <thead><tr><th>Categoria</th><th>Ações</th></tr></thead>
+              <thead><tr><th>Categoria</th><th style="width:100px;">Ações</th></tr></thead>
               <tbody id="plano-despesas-tbody"></tbody>
             </table>
           </div>

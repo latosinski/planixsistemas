@@ -15,22 +15,19 @@ window.SampleData = {
   lancamentos: (function() {
     const hoje = new Date();
     const ano = hoje.getFullYear();
-    const mes = hoje.getMonth(); // 0-based
+    const mes = hoje.getMonth();
     const pad = (n) => String(n).padStart(2, '0');
     const diaAtual = hoje.getDate();
     const dados = [];
 
-    // Gera lançamentos de exemplo para o mês atual até hoje
     for (let dia = 1; dia <= diaAtual; dia++) {
       const data = `${ano}-${pad(mes+1)}-${pad(dia)}`;
-      // Receitas variáveis
       if (dia % 3 === 0 || dia === 1) {
         dados.push({ id: dados.length+1, data, descricao: 'Venda produtos', valor: 1500 + (dia * 20), tipo: 'receita', categoriaId: 1, dataPagamento: data, status: 'pago' });
       }
       if (dia % 5 === 0) {
         dados.push({ id: dados.length+1, data, descricao: 'Serviço prestado', valor: 800, tipo: 'receita', categoriaId: 2, dataPagamento: data, status: 'pago' });
       }
-      // Despesas
       if (dia === 5 || dia === 20) {
         dados.push({ id: dados.length+1, data, descricao: 'Salários', valor: 5000, tipo: 'despesa', categoriaId: 1, dataPagamento: data, status: 'pago' });
       }
@@ -43,8 +40,15 @@ window.SampleData = {
     }
     return dados;
   })(),
-  metas: {
-    receita: 20000,
-    despesa: 12000
-  }
+  /**
+   * Metas agora por mês/ano: { "YYYY-MM": { receita, despesa } }
+   * As metas iniciais são definidas para o mês atual.
+   */
+  metas: (function() {
+    const hoje = new Date();
+    const chave = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    const obj = {};
+    obj[chave] = { receita: 20000, despesa: 12000 };
+    return obj;
+  })()
 };
