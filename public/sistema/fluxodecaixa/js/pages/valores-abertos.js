@@ -35,7 +35,7 @@ window.ValoresAbertosPage = (function() {
     if (!tbody) return;
 
     if (itens.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem;">Nenhum valor em aberto.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2rem;">Nenhum valor em aberto.</td></tr>';
     } else {
       tbody.innerHTML = itens.map(l => {
         const cat = l.tipo === 'receita' 
@@ -49,12 +49,15 @@ window.ValoresAbertosPage = (function() {
         const valorClass = l.tipo === 'receita' ? 'success' : 'danger';
         const valorFormatado = (l.tipo === 'despesa' ? '-' : '') + Utils.formatCurrency(l.valor);
         const dataFmt = Utils.parseDate(l.data)?.toLocaleDateString('pt-BR') || l.data;
+        const qtd = l.quantidade != null ? l.quantidade : 1;
+        const qtdFmt = Number.isInteger(qtd) ? qtd : qtd.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
         return `
           <tr ${rowStyle}>
             <td>${dataFmt}</td>
             <td>${Utils.escapeHtml(l.descricao)}</td>
             <td>${nomeCat}</td>
             <td>${l.tipo === 'receita' ? 'Receita' : 'Despesa'}</td>
+            <td>${qtdFmt}</td>
             <td class="${valorClass}">${valorFormatado}</td>
             <td><span class="${statusBadge}">${statusTexto}</span></td>
             <td>
@@ -99,12 +102,25 @@ window.ValoresAbertosPage = (function() {
     }, { title: 'Excluir Lançamento', confirmText: 'Excluir', confirmClass: 'btn-danger' });
   }
 
+  function calcularTotal(quantidade, valorUnitario, descontoPercentual) {
+    const q = Number(quantidade) || 0;
+    const vu = Number(valorUnitario) || 0;
+    const d = Number(descontoPercentual) || 0;
+    const subtotal = q * vu;
+    const total = subtotal - subtotal * (d / 100);
+    return Math.max(0, total);
+  }
+
   function abrirModalEdicao(id) {
-    const lanc = lancamentos.find(l => l.id === id);
-    if (!lanc) { UI.showToast('Lançamento não encontrado.', 'error'); return; }
+  carregarDados();
+  const lanc = lancamentos.find(l => l.id === id);
+  if (!lanc) { UI.showToast('Lançamento não encontrado.', 'error'); return; }
 
     const categorias = lanc.tipo === 'receita' ? categoriasReceitas : categoriasDespesas;
-    const valorFormatado = Utils.formatCurrencyInput(lanc.valor);
+    const qtdInicial = lanc.quantidade != null ? lanc.quantidade : 1;
+    const vuInicial = lanc.valorUnitario != null ? lanc.valorUnitario : lanc.valor;
+    const descInicial = lanc.descontoPercentual != null ? lanc.descontoPercentual : 0;
+    const totalInicial = calcularTotal(qtdInicial, vuInicial, descInicial);
 
     const html = `
       <form id="form-editar-valores" novalidate>
@@ -125,10 +141,29 @@ window.ValoresAbertosPage = (function() {
           <label class="form-label">Descrição *</label>
           <input id="edit-descricao" class="form-input" maxlength="200" value="${Utils.escapeHtml(lanc.descricao)}" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Valor (R$) *</label>
-          <input id="edit-valor" type="text" inputmode="decimal" class="form-input" value="${valorFormatado}" placeholder="0,00" required>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Quantidade *</label>
+            <input id="edit-quantidade" type="text" inputmode="decimal" class="form-input" value="${qtdInicial}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Unitário (R$) *</label>
+            <input id="edit-valor-unitario" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(vuInicial)}" placeholder="0,00" required>
+          </div>
         </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Desconto (%)</label>
+            <input id="edit-desconto" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(descInicial)}" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Total (R$)</label>
+            <input id="edit-valor-total" type="text" class="form-input" value="${Utils.formatCurrencyInput(totalInicial)}" readonly style="background:var(--bg); font-weight:700;">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Data *</label>
           <input id="edit-data" type="date" class="form-input" value="${lanc.data}" required>
@@ -150,10 +185,31 @@ window.ValoresAbertosPage = (function() {
     `;
     UI.showModal('Editar Lançamento', html);
 
-    const valorInput = document.getElementById('edit-valor');
-    valorInput.addEventListener('blur', function() {
+    const qtdInput = document.getElementById('edit-quantidade');
+    const vuInput = document.getElementById('edit-valor-unitario');
+    const descInput = document.getElementById('edit-desconto');
+    const totalInput = document.getElementById('edit-valor-total');
+
+    function atualizarTotal() {
+      const q = Utils.parseCurrencyInput(qtdInput.value);
+      const vu = Utils.parseCurrencyInput(vuInput.value);
+      const d = Utils.parseCurrencyInput(descInput.value);
+      totalInput.value = Utils.formatCurrencyInput(calcularTotal(q, vu, d));
+    }
+
+    qtdInput.addEventListener('input', atualizarTotal);
+    vuInput.addEventListener('input', atualizarTotal);
+    descInput.addEventListener('input', atualizarTotal);
+
+    vuInput.addEventListener('blur', function() {
       const n = Utils.parseCurrencyInput(this.value);
       if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
+    });
+    descInput.addEventListener('blur', function() {
+      const n = Utils.parseCurrencyInput(this.value);
+      if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
     });
 
     document.getElementById('form-editar-valores').addEventListener('submit', function(e) {
@@ -161,14 +217,20 @@ window.ValoresAbertosPage = (function() {
       const id = parseInt(document.getElementById('edit-id').value);
       const categoriaId = parseInt(document.getElementById('edit-categoria').value);
       const descricao = document.getElementById('edit-descricao').value.trim();
-      const valor = Utils.parseCurrencyInput(valorInput.value);
+      const quantidade = Utils.parseCurrencyInput(qtdInput.value);
+      const valorUnitario = Utils.parseCurrencyInput(vuInput.value);
+      const descontoPercentual = Utils.parseCurrencyInput(descInput.value) || 0;
+      const valor = calcularTotal(quantidade, valorUnitario, descontoPercentual);
       const data = document.getElementById('edit-data').value;
       const dataPagamento = document.getElementById('edit-data-pagamento').value;
       const status = document.getElementById('edit-status').value;
 
       if (!categoriaId || isNaN(categoriaId)) { UI.showToast('Selecione uma categoria.', 'error'); return; }
       if (!descricao) { UI.showToast('A descrição é obrigatória.', 'error'); return; }
-      if (isNaN(valor) || valor <= 0) { UI.showToast('O valor deve ser maior que zero.', 'error'); valorInput.focus(); return; }
+      if (isNaN(quantidade) || quantidade < 1) { UI.showToast('Quantidade mínima: 1.', 'error'); qtdInput.focus(); return; }
+      if (isNaN(valorUnitario) || valorUnitario < 0) { UI.showToast('Valor unitário inválido.', 'error'); vuInput.focus(); return; }
+      if (descontoPercentual < 0 || descontoPercentual > 100) { UI.showToast('Desconto deve estar entre 0% e 100%.', 'error'); descInput.focus(); return; }
+      if (valor <= 0) { UI.showToast('Valor total deve ser maior que zero.', 'error'); return; }
       if (!Utils.isValidDate(data)) { UI.showToast('Data inválida.', 'error'); return; }
       if (dataPagamento) {
         if (!Utils.isValidDate(dataPagamento)) { UI.showToast('Data de pagamento inválida.', 'error'); return; }
@@ -178,7 +240,7 @@ window.ValoresAbertosPage = (function() {
       const todos = Storage.get(Storage.KEYS.LANCAMENTOS) || [];
       const index = todos.findIndex(l => l.id === id);
       if (index !== -1) {
-        todos[index] = { ...todos[index], categoriaId, descricao, valor, data, dataPagamento: dataPagamento || data, status };
+        todos[index] = { ...todos[index], categoriaId, descricao, quantidade, valorUnitario, descontoPercentual, valor, data, dataPagamento: dataPagamento || data, status };
         Storage.set(Storage.KEYS.LANCAMENTOS, todos);
         carregarDados();
         UI.hideModal();
@@ -203,7 +265,7 @@ window.ValoresAbertosPage = (function() {
         <div class="table-container">
           <table>
             <thead>
-              <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+              <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Qtd</th><th>Valor Total</th><th>Status</th><th>Ações</th></tr>
             </thead>
             <tbody id="valores-abertos-tbody"></tbody>
           </table>

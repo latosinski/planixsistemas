@@ -59,6 +59,10 @@ window.UI = (function() {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-body').innerHTML = contentHtml;
     container.classList.remove('hidden');
+
+    // Foca o primeiro campo de formulário, se houver
+    const primeiroCampo = container.querySelector('input, select, textarea, button[type="submit"]');
+    if (primeiroCampo) setTimeout(() => primeiroCampo.focus(), 30);
   }
   function hideModal() {
     document.getElementById('modal-container')?.classList.add('hidden');
@@ -98,6 +102,9 @@ window.UI = (function() {
 
     _confirmCallback = onConfirm;
     container.classList.remove('hidden');
+
+    // Foco vai para o botão de ação → Enter confirma direto
+    setTimeout(() => okBtn.focus(), 30);
   }
   function fecharConfirm(confirmar) {
     const container = document.getElementById('confirm-container');
@@ -113,8 +120,16 @@ window.UI = (function() {
     container?.addEventListener('click', (e) => {
       if (e.target === container) fecharConfirm(false);
     });
+
+    // Teclado: Enter confirma, Esc cancela
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && container && !container.classList.contains('hidden')) {
+      if (!container || container.classList.contains('hidden')) return;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        fecharConfirm(true);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
         fecharConfirm(false);
       }
     });
@@ -163,7 +178,7 @@ window.UI = (function() {
   }
 
   // --- Seletor de período global ---
-  let _anoExibido = null; // ano mostrado no dropdown (independente do período selecionado)
+  let _anoExibido = null;
 
   function initPeriodSelector() {
     const prevBtn = document.getElementById('period-prev');
@@ -246,7 +261,6 @@ window.UI = (function() {
       fecharDropdown();
     });
 
-    // Fechar dropdown ao clicar fora
     document.addEventListener('click', (e) => {
       if (!dropdown.contains(e.target) && e.target !== display && !display.contains(e.target)) {
         fecharDropdown();

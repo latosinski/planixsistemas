@@ -35,18 +35,21 @@ window.ContasPagarPage = (function() {
     if (!tbody) return;
 
     if (itens.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">Nenhuma conta a pagar encontrada.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem;">Nenhuma conta a pagar encontrada.</td></tr>';
     } else {
       tbody.innerHTML = itens.map(l => {
         const cat = categorias.find(c => c.id === l.categoriaId);
         const nomeCat = cat ? Utils.escapeHtml(cat.nome) : '—';
         const statusBadge = l.status === 'pago' ? 'badge badge-success' : 'badge badge-warning';
         const dataFmt = Utils.parseDate(l.data)?.toLocaleDateString('pt-BR') || l.data;
+        const qtd = l.quantidade != null ? l.quantidade : 1;
+        const qtdFmt = Number.isInteger(qtd) ? qtd : qtd.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
         return `
           <tr>
             <td>${dataFmt}</td>
             <td>${Utils.escapeHtml(l.descricao)}</td>
             <td>${nomeCat}</td>
+            <td>${qtdFmt}</td>
             <td class="danger">- ${Utils.formatCurrency(l.valor)}</td>
             <td><span class="${statusBadge}">${l.status}</span></td>
             <td>
@@ -99,11 +102,24 @@ window.ContasPagarPage = (function() {
     };
   }
 
-  function abrirModalEdicao(id) {
-    const lanc = despesas.find(l => l.id === id);
-    if (!lanc) { UI.showToast('Conta não encontrada.', 'error'); return; }
+  function calcularTotal(quantidade, valorUnitario, descontoPercentual) {
+    const q = Number(quantidade) || 0;
+    const vu = Number(valorUnitario) || 0;
+    const d = Number(descontoPercentual) || 0;
+    const subtotal = q * vu;
+    const total = subtotal - subtotal * (d / 100);
+    return Math.max(0, total);
+  }
 
-    const valorFormatado = Utils.formatCurrencyInput(lanc.valor);
+  function abrirModalEdicao(id) {
+  carregarDados();
+  const lanc = despesas.find(l => l.id === id);
+  if (!lanc) { UI.showToast('Conta não encontrada.', 'error'); return; }
+
+    const qtdInicial = lanc.quantidade != null ? lanc.quantidade : 1;
+    const vuInicial = lanc.valorUnitario != null ? lanc.valorUnitario : lanc.valor;
+    const descInicial = lanc.descontoPercentual != null ? lanc.descontoPercentual : 0;
+    const totalInicial = calcularTotal(qtdInicial, vuInicial, descInicial);
 
     const html = `
       <form id="form-editar-despesa" novalidate>
@@ -117,10 +133,29 @@ window.ContasPagarPage = (function() {
           <label class="form-label">Descrição *</label>
           <input id="edit-descricao" class="form-input" maxlength="200" value="${Utils.escapeHtml(lanc.descricao)}" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Valor (R$) *</label>
-          <input id="edit-valor" type="text" inputmode="decimal" class="form-input" value="${valorFormatado}" placeholder="0,00" required>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Quantidade *</label>
+            <input id="edit-quantidade" type="text" inputmode="decimal" class="form-input" value="${qtdInicial}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Unitário (R$) *</label>
+            <input id="edit-valor-unitario" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(vuInicial)}" placeholder="0,00" required>
+          </div>
         </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Desconto (%)</label>
+            <input id="edit-desconto" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(descInicial)}" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Total (R$)</label>
+            <input id="edit-valor-total" type="text" class="form-input" value="${Utils.formatCurrencyInput(totalInicial)}" readonly style="background:var(--bg); font-weight:700;">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Data *</label>
           <input id="edit-data" type="date" class="form-input" value="${lanc.data}" required>
@@ -142,10 +177,31 @@ window.ContasPagarPage = (function() {
     `;
     UI.showModal('Editar Conta a Pagar', html);
 
-    const valorInput = document.getElementById('edit-valor');
-    valorInput.addEventListener('blur', function() {
+    const qtdInput = document.getElementById('edit-quantidade');
+    const vuInput = document.getElementById('edit-valor-unitario');
+    const descInput = document.getElementById('edit-desconto');
+    const totalInput = document.getElementById('edit-valor-total');
+
+    function atualizarTotal() {
+      const q = Utils.parseCurrencyInput(qtdInput.value);
+      const vu = Utils.parseCurrencyInput(vuInput.value);
+      const d = Utils.parseCurrencyInput(descInput.value);
+      totalInput.value = Utils.formatCurrencyInput(calcularTotal(q, vu, d));
+    }
+
+    qtdInput.addEventListener('input', atualizarTotal);
+    vuInput.addEventListener('input', atualizarTotal);
+    descInput.addEventListener('input', atualizarTotal);
+
+    vuInput.addEventListener('blur', function() {
       const n = Utils.parseCurrencyInput(this.value);
       if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
+    });
+    descInput.addEventListener('blur', function() {
+      const n = Utils.parseCurrencyInput(this.value);
+      if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
     });
 
     document.getElementById('form-editar-despesa').addEventListener('submit', function(e) {
@@ -153,14 +209,20 @@ window.ContasPagarPage = (function() {
       const id = parseInt(document.getElementById('edit-id').value);
       const categoriaId = parseInt(document.getElementById('edit-categoria').value);
       const descricao = document.getElementById('edit-descricao').value.trim();
-      const valor = Utils.parseCurrencyInput(valorInput.value);
+      const quantidade = Utils.parseCurrencyInput(qtdInput.value);
+      const valorUnitario = Utils.parseCurrencyInput(vuInput.value);
+      const descontoPercentual = Utils.parseCurrencyInput(descInput.value) || 0;
+      const valor = calcularTotal(quantidade, valorUnitario, descontoPercentual);
       const data = document.getElementById('edit-data').value;
       const dataPagamento = document.getElementById('edit-data-pagamento').value;
       const status = document.getElementById('edit-status').value;
 
       if (!categoriaId || isNaN(categoriaId)) { UI.showToast('Selecione uma categoria.', 'error'); return; }
       if (!descricao) { UI.showToast('A descrição é obrigatória.', 'error'); return; }
-      if (isNaN(valor) || valor <= 0) { UI.showToast('O valor deve ser maior que zero.', 'error'); valorInput.focus(); return; }
+      if (isNaN(quantidade) || quantidade < 1) { UI.showToast('Quantidade mínima: 1.', 'error'); qtdInput.focus(); return; }
+      if (isNaN(valorUnitario) || valorUnitario < 0) { UI.showToast('Valor unitário inválido.', 'error'); vuInput.focus(); return; }
+      if (descontoPercentual < 0 || descontoPercentual > 100) { UI.showToast('Desconto deve estar entre 0% e 100%.', 'error'); descInput.focus(); return; }
+      if (valor <= 0) { UI.showToast('Valor total deve ser maior que zero.', 'error'); return; }
       if (!Utils.isValidDate(data)) { UI.showToast('Data inválida.', 'error'); return; }
       if (dataPagamento) {
         if (!Utils.isValidDate(dataPagamento)) { UI.showToast('Data de pagamento inválida.', 'error'); return; }
@@ -170,7 +232,7 @@ window.ContasPagarPage = (function() {
       const todos = Storage.get(Storage.KEYS.LANCAMENTOS) || [];
       const index = todos.findIndex(l => l.id === id);
       if (index !== -1) {
-        todos[index] = { ...todos[index], categoriaId, descricao, valor, data, dataPagamento: dataPagamento || data, status };
+        todos[index] = { ...todos[index], categoriaId, descricao, quantidade, valorUnitario, descontoPercentual, valor, data, dataPagamento: dataPagamento || data, status };
         Storage.set(Storage.KEYS.LANCAMENTOS, todos);
         carregarDados();
         UI.hideModal();
@@ -211,7 +273,7 @@ window.ContasPagarPage = (function() {
         <div class="table-container">
           <table>
             <thead>
-              <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+              <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Qtd</th><th>Valor Total</th><th>Status</th><th>Ações</th></tr>
             </thead>
             <tbody id="contas-pagar-tbody"></tbody>
           </table>

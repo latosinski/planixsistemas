@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluxo de Caixa - Dashboard</title>
+  <title>Cash Pró — Gestão Fluxo de Caixa</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Banner de demonstração -->
+  <div class="demo-banner">
+    <i class="fas fa-flask"></i>
+    <span><strong>Demonstração Web</strong> — os dados ficam salvos apenas neste navegador. Nada é enviado a servidores.</span>
+  </div>
+
   <div id="overlay" class="overlay"></div>
 
   <aside id="sidebar" class="sidebar">
@@ -18,8 +24,8 @@
       <div class="brand">
         <div class="logo">FC</div>
         <div class="brand-text">
-          <b>FluxoCaixa</b>
-          <small>Gestão Financeira</small>
+          <b>Cash Pró</b>
+          <small>Gestão Fluxo de Caixa</small>
         </div>
         <button id="close-sidebar" class="sidebar-close-btn" aria-label="Fechar menu">×</button>
       </div>
@@ -53,7 +59,7 @@
           <span class="menu-icon-open"><i class="fas fa-bars"></i></span>
           <span class="menu-icon-close"><i class="fas fa-times"></i></span>
         </button>
-        <div class="crumb">FluxoCaixa / <b id="crumb">Dashboard</b></div>
+        <div class="crumb">Cash Pró / <b id="crumb">Dashboard</b></div>
 
         <div class="period-selector" id="period-selector">
           <button class="period-nav" id="period-prev" aria-label="Mês anterior">
@@ -85,7 +91,6 @@
         <button id="dark-mode-toggle" class="icon-btn" aria-label="Alternar tema"><i class="fas fa-moon"></i></button>
         <button id="refresh-btn" class="icon-btn" aria-label="Atualizar dados"><i class="fas fa-sync-alt"></i></button>
         <span id="current-date" class="current-date"></span>
-        <div class="avatar">MR</div>
       </div>
     </header>
     <main id="main-content" class="main-content"></main>

@@ -1,5 +1,5 @@
 /**
- * Página de Lançamentos – CRUD com validações e paginação.
+ * Página de Lançamentos – CRUD com validações, paginação e cálculo de total.
  */
 window.LancamentosPage = (function() {
   let lancamentos = [];
@@ -36,7 +36,7 @@ window.LancamentosPage = (function() {
     if (!tbody) return;
 
     if (itens.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2rem;">Nenhum lançamento encontrado.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem;">Nenhum lançamento encontrado.</td></tr>';
     } else {
       tbody.innerHTML = itens.map(l => {
         const cat = l.tipo === 'receita' 
@@ -47,11 +47,15 @@ window.LancamentosPage = (function() {
         const statusBadge = l.status === 'pago' ? 'badge badge-success' : 'badge badge-warning';
         const valorFormatado = (l.tipo === 'despesa' ? '-' : '') + Utils.formatCurrency(l.valor);
         const dataFmt = Utils.parseDate(l.data)?.toLocaleDateString('pt-BR') || l.data;
+        const qtd = l.quantidade != null ? l.quantidade : 1;
+        const qtdFmt = Number.isInteger(qtd) ? qtd : qtd.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
+
         return `
           <tr>
             <td>${dataFmt}</td>
             <td>${Utils.escapeHtml(l.descricao)}</td>
             <td>${nomeCat}</td>
+            <td>${qtdFmt}</td>
             <td class="${valorClass}">${valorFormatado}</td>
             <td><span class="${statusBadge}">${l.status}</span></td>
             <td>
@@ -69,7 +73,6 @@ window.LancamentosPage = (function() {
       });
     }
 
-    // Atualiza paginação
     if (pagInfo) {
       pagInfo.textContent = totalItens === 0
         ? 'Nenhum registro'
@@ -107,8 +110,13 @@ window.LancamentosPage = (function() {
     };
   }
 
-  function abrirModalCadastro() { preencherModal(null); }
+  // Recarrega dados ANTES de abrir o modal — garante categorias atualizadas
+  function abrirModalCadastro() {
+    carregarDados();
+    preencherModal(null);
+  }
   function abrirModalEdicao(id) {
+    carregarDados();
     const lanc = lancamentos.find(l => l.id === id);
     if (!lanc) return;
     preencherModal(lanc);
@@ -124,10 +132,23 @@ window.LancamentosPage = (function() {
     );
   }
 
+  function calcularTotal(quantidade, valorUnitario, descontoPercentual) {
+    const q = Number(quantidade) || 0;
+    const vu = Number(valorUnitario) || 0;
+    const d = Number(descontoPercentual) || 0;
+    const subtotal = q * vu;
+    const total = subtotal - subtotal * (d / 100);
+    return Math.max(0, total);
+  }
+
   function preencherModal(lanc) {
     const titulo = lanc ? 'Editar Lançamento' : 'Novo Lançamento';
     const isEdicao = !!lanc;
-    const valorFormatado = lanc ? Utils.formatCurrencyInput(lanc.valor) : '';
+
+    const qtdInicial = lanc ? (lanc.quantidade != null ? lanc.quantidade : 1) : 1;
+    const vuInicial = lanc ? (lanc.valorUnitario != null ? lanc.valorUnitario : lanc.valor) : 0;
+    const descInicial = lanc ? (lanc.descontoPercentual != null ? lanc.descontoPercentual : 0) : 0;
+    const totalInicial = calcularTotal(qtdInicial, vuInicial, descInicial);
 
     const html = `
       <form id="form-lancamento" novalidate>
@@ -149,10 +170,29 @@ window.LancamentosPage = (function() {
           <label class="form-label">Descrição *</label>
           <input id="lanc-descricao" class="form-input" maxlength="200" value="${lanc ? Utils.escapeHtml(lanc.descricao) : ''}" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Valor (R$) *</label>
-          <input id="lanc-valor" type="text" inputmode="decimal" class="form-input" value="${valorFormatado}" placeholder="0,00" required>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Quantidade *</label>
+            <input id="lanc-quantidade" type="text" inputmode="decimal" class="form-input" value="${qtdInicial}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Unitário (R$) *</label>
+            <input id="lanc-valor-unitario" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(vuInicial)}" placeholder="0,00" required>
+          </div>
         </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group">
+            <label class="form-label">Desconto (%)</label>
+            <input id="lanc-desconto" type="text" inputmode="decimal" class="form-input" value="${Utils.formatCurrencyInput(descInicial)}" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor Total (R$)</label>
+            <input id="lanc-valor-total" type="text" class="form-input" value="${Utils.formatCurrencyInput(totalInicial)}" readonly style="background:var(--bg); font-weight:700;">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Data do lançamento *</label>
           <input id="lanc-data" type="date" class="form-input" value="${lanc ? lanc.data : ''}" required>
@@ -173,25 +213,64 @@ window.LancamentosPage = (function() {
         <button type="submit" class="btn btn-primary" style="width:100%">${isEdicao ? 'Atualizar' : 'Salvar'} Lançamento</button>
       </form>
     `;
+
     UI.showModal(titulo, html);
 
     const tipoSelect = document.getElementById('lanc-tipo');
     const catSelect = document.getElementById('lanc-categoria');
-    const valorInput = document.getElementById('lanc-valor');
+    const qtdInput = document.getElementById('lanc-quantidade');
+    const vuInput = document.getElementById('lanc-valor-unitario');
+    const descInput = document.getElementById('lanc-desconto');
+    const totalInput = document.getElementById('lanc-valor-total');
 
-    valorInput.addEventListener('blur', function() {
+    function atualizarTotal() {
+      const qtd = Utils.parseCurrencyInput(qtdInput.value);
+      const vu = Utils.parseCurrencyInput(vuInput.value);
+      const desc = Utils.parseCurrencyInput(descInput.value);
+      const total = calcularTotal(qtd, vu, desc);
+      totalInput.value = Utils.formatCurrencyInput(total);
+    }
+
+    qtdInput.addEventListener('input', atualizarTotal);
+    vuInput.addEventListener('input', atualizarTotal);
+    descInput.addEventListener('input', atualizarTotal);
+
+    qtdInput.addEventListener('blur', function() {
+      const n = Utils.parseCurrencyInput(this.value);
+      if (!isNaN(n)) {
+        const limpo = Number.isInteger(n) ? n : n.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
+        this.value = String(limpo).replace('.', ',');
+      }
+      atualizarTotal();
+    });
+    vuInput.addEventListener('blur', function() {
       const n = Utils.parseCurrencyInput(this.value);
       if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
+    });
+    descInput.addEventListener('blur', function() {
+      const n = Utils.parseCurrencyInput(this.value);
+      if (!isNaN(n)) this.value = Utils.formatCurrencyInput(n);
+      atualizarTotal();
     });
 
     function carregarCategorias(tipo) {
       catSelect.innerHTML = '<option value="">Selecione...</option>';
       catSelect.disabled = !tipo;
+
       if (tipo === 'receita') {
+        if (!categoriasReceitas || categoriasReceitas.length === 0) {
+          catSelect.innerHTML = '<option value="">Nenhuma categoria de receita cadastrada — cadastre no Plano de Contas</option>';
+          return;
+        }
         categoriasReceitas.forEach(c => {
           catSelect.innerHTML += `<option value="${c.id}" ${lanc && lanc.categoriaId === c.id ? 'selected' : ''}>${Utils.escapeHtml(c.nome)}</option>`;
         });
       } else if (tipo === 'despesa') {
+        if (!categoriasDespesas || categoriasDespesas.length === 0) {
+          catSelect.innerHTML = '<option value="">Nenhuma categoria de despesa cadastrada — cadastre no Plano de Contas</option>';
+          return;
+        }
         categoriasDespesas.forEach(c => {
           catSelect.innerHTML += `<option value="${c.id}" ${lanc && lanc.categoriaId === c.id ? 'selected' : ''}>${Utils.escapeHtml(c.nome)}</option>`;
         });
@@ -209,7 +288,10 @@ window.LancamentosPage = (function() {
       const tipo = tipoSelect.value;
       const categoriaId = parseInt(catSelect.value);
       const descricao = document.getElementById('lanc-descricao').value.trim();
-      const valor = Utils.parseCurrencyInput(valorInput.value);
+      const quantidade = Utils.parseCurrencyInput(qtdInput.value);
+      const valorUnitario = Utils.parseCurrencyInput(vuInput.value);
+      const descontoPercentual = Utils.parseCurrencyInput(descInput.value) || 0;
+      const valor = calcularTotal(quantidade, valorUnitario, descontoPercentual);
       const data = document.getElementById('lanc-data').value;
       const dataPagamento = document.getElementById('lanc-data-pagamento').value;
       const status = document.getElementById('lanc-status').value;
@@ -219,14 +301,24 @@ window.LancamentosPage = (function() {
       const listaCat = tipo === 'receita' ? categoriasReceitas : categoriasDespesas;
       if (!listaCat.some(c => c.id === categoriaId)) { UI.showToast('A categoria selecionada não existe mais.', 'error'); return; }
       if (!descricao) { UI.showToast('A descrição é obrigatória.', 'error'); document.getElementById('lanc-descricao').focus(); return; }
-      if (isNaN(valor) || valor <= 0) { UI.showToast('O valor deve ser maior que zero.', 'error'); valorInput.focus(); return; }
+      if (isNaN(quantidade) || quantidade < 1) { UI.showToast('A quantidade deve ser no mínimo 1.', 'error'); qtdInput.focus(); return; }
+      if (isNaN(valorUnitario) || valorUnitario < 0) { UI.showToast('O valor unitário não pode ser negativo.', 'error'); vuInput.focus(); return; }
+      if (descontoPercentual < 0 || descontoPercentual > 100) { UI.showToast('O desconto deve estar entre 0% e 100%.', 'error'); descInput.focus(); return; }
+      if (valor <= 0) { UI.showToast('O valor total deve ser maior que zero.', 'error'); return; }
       if (!Utils.isValidDate(data)) { UI.showToast('Informe uma data de lançamento válida.', 'error'); document.getElementById('lanc-data').focus(); return; }
       if (dataPagamento) {
         if (!Utils.isValidDate(dataPagamento)) { UI.showToast('Data de pagamento inválida.', 'error'); return; }
         if (dataPagamento < data) { UI.showToast('A data de pagamento não pode ser anterior à data do lançamento.', 'error'); document.getElementById('lanc-data-pagamento').focus(); return; }
       }
 
-      const dados = { tipo, categoriaId, descricao, valor, data, dataPagamento: dataPagamento || data, status };
+      const dados = {
+        tipo, categoriaId, descricao,
+        quantidade, valorUnitario, descontoPercentual,
+        valor,
+        data,
+        dataPagamento: dataPagamento || data,
+        status
+      };
 
       function salvar() {
         if (id) {
@@ -304,7 +396,8 @@ window.LancamentosPage = (function() {
                 <th>Data</th>
                 <th>Descrição</th>
                 <th>Categoria</th>
-                <th>Valor</th>
+                <th>Qtd</th>
+                <th>Valor Total</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
