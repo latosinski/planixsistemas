@@ -49,7 +49,7 @@ export default function Modal({
             rel="noopener noreferrer"
             className={styles.accessLink}
           >
-            Acesse o sistema
+            Acesse
           </a>
         )}
       </div>

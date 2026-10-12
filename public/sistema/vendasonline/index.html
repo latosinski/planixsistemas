@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planix Vendasonline</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="Planix" class="logo-image">
+                <div class="logo-text">Planix<span>Vendasonline</span></div>
+                <button class="sidebar-close-btn" id="sidebarClose"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Principal</div>
+                <a class="nav-item active" data-section="dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a class="nav-item" data-section="pedidos"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+                <a class="nav-item" data-section="produtos"><i class="fas fa-box"></i> Produtos</a>
+                <a class="nav-item" data-section="categorias"><i class="fas fa-tags"></i> Categorias</a>
+                <a class="nav-item" data-section="clientes"><i class="fas fa-users"></i> Clientes</a>
+                <a class="nav-item" data-section="custos-fixos"><i class="fas fa-receipt"></i> Custos Fixos</a>
+                <a class="nav-item" data-section="marketplaces"><i class="fas fa-store"></i> Marketplaces</a>
+                <div class="nav-section">Financeiro</div>
+                <a class="nav-item" data-section="fornecedores"><i class="fas fa-truck"></i> Fornecedores</a>
+                <a class="nav-item" data-section="contas"><i class="fas fa-file-invoice-dollar"></i> Contas a Pagar</a>
+                <a class="nav-item" data-section="contas-receber"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</a>
+                <a class="nav-item" data-section="relatorios"><i class="fas fa-chart-bar"></i> Relatórios</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">PV</div>
+                    <div class="user-info">
+                        <div class="user-name">Planix Vendasonline</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="main-wrapper" id="mainWrapper">
+            <!-- 🛡️ Banner de Demonstração Web (fixo no topo) -->
+            <div class="demo-banner" role="status" aria-live="polite">
+                <i class="fas fa-shield-alt"></i>
+                <span class="demo-banner-text">
+                    <strong>Demonstração Web</strong> — os dados ficam salvos apenas neste navegador. Nada é enviado a servidores.
+                </span>
+            </div>
+
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <span class="page-title" id="pageTitle">Dashboard</span>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" id="themeToggle" title="Alternar tema"><i class="fas fa-moon"></i></button>
+                    <span style="font-size:0.85rem; color: var(--text-light);">Planix Vendasonline</span>
+                    <div class="header-avatar">PV</div>
+                </div>
+            </header>
+            <main class="content" id="contentArea"></main>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <script src="js/store.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/utils/calculos.js"></script>
+    <script src="js/components/modal.js"></script>
+    <script src="js/modules/dashboard.js"></script>
+    <script src="js/modules/produtos.js"></script>
+    <script src="js/modules/categorias.js"></script>
+    <script src="js/modules/clientes.js"></script>
+    <script src="js/modules/pedidos.js"></script>
+    <script src="js/modules/custosFixos.js"></script>
+    <script src="js/modules/marketplaces.js"></script>
+    <script src="js/modules/fornecedores.js"></script>
+    <script src="js/modules/contas.js"></script>
+    <script src="js/modules/contasReceber.js"></script>
+    <script src="js/modules/relatorios.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

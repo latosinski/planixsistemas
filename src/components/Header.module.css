@@ -26,6 +26,21 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logoImage {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: contain;
+  display: block;
+}
+
+.logoText {
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
@@ -86,7 +101,6 @@
   transition: all 0.3s ease;
 }
 
-/* Animação do ícone hamburger */
 .menuToggle.active span:nth-child(1) {
   transform: rotate(45deg) translate(5px, 5px);
 }
@@ -97,7 +111,6 @@
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .menu {
     position: absolute;
@@ -141,5 +154,14 @@
 
   .menuToggle {
     display: flex;
+  }
+
+  .logoText {
+    font-size: 1.3rem;
+  }
+
+  .logoImage {
+    width: 32px;
+    height: 32px;
   }
 }

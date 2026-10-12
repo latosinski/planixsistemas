@@ -8,6 +8,7 @@ const menuItems = [
   { label: 'Benefícios', href: '#beneficios' },
   { label: 'Projetos', href: '#projetos' },
   { label: 'Etapas', href: '#etapas' },
+  { label: 'Depoimentos', href: '#depoimentos' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Contato', href: '#contato' },
 ];
@@ -39,12 +40,17 @@ export default function Header() {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header
-      className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}
-    >
+    <header className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}>
       <nav className={styles.nav} aria-label="Menu principal">
         <a href="#topo" className={styles.logo}>
-          Planix Sistemas
+          <img
+            src="/img/logo.png"
+            alt="Planix Sistemas"
+            className={styles.logoImage}
+            width={36}
+            height={36}
+          />
+          <span className={styles.logoText}>Planix Sistemas</span>
         </a>
 
         <button
