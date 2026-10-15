@@ -87,8 +87,13 @@ function editarFornecedor(id) {
     if (f) abrirModalFornecedor(f);
 }
 
-function excluirFornecedor(id) {
-    if (confirm('Excluir fornecedor?')) {
+async function excluirFornecedor(id) {
+    var ok = await confirmar('Excluir este fornecedor?', {
+        titulo: 'Excluir fornecedor',
+        tipo: 'perigo',
+        textoConfirmar: 'Excluir'
+    });
+    if (ok) {
         fornecedores = fornecedores.filter(function(f) { return f.id !== id; });
         Storage.saveFornecedores();
         renderFornecedoresView();

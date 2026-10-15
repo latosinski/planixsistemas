@@ -25,12 +25,15 @@
                 <a class="nav-item" data-section="categorias"><i class="fas fa-tags"></i> Categorias</a>
                 <a class="nav-item" data-section="clientes"><i class="fas fa-users"></i> Clientes</a>
                 <a class="nav-item" data-section="custos-fixos"><i class="fas fa-receipt"></i> Custos Fixos</a>
-                <a class="nav-item" data-section="marketplaces"><i class="fas fa-store"></i> Marketplaces</a>
+                <a class="nav-item" data-section="marketplaces"><i class="fas fa-store"></i> Canais de Venda</a>
                 <div class="nav-section">Financeiro</div>
                 <a class="nav-item" data-section="fornecedores"><i class="fas fa-truck"></i> Fornecedores</a>
                 <a class="nav-item" data-section="contas"><i class="fas fa-file-invoice-dollar"></i> Contas a Pagar</a>
                 <a class="nav-item" data-section="contas-receber"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</a>
                 <a class="nav-item" data-section="relatorios"><i class="fas fa-chart-bar"></i> Relatórios</a>
+                <div class="nav-section">Sistema</div>
+                <a class="nav-item" data-section="backup"><i class="fas fa-database"></i> Backup</a>
+                <a class="nav-item logout-link" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sair</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-card">
@@ -43,14 +46,13 @@
             </div>
         </aside>
         <div class="main-wrapper" id="mainWrapper">
-            <!-- 🛡️ Banner de Demonstração Web (fixo no topo) -->
+         <!-- 🛡️ Banner de Demonstração Web (fixo no topo) -->
             <div class="demo-banner" role="status" aria-live="polite">
                 <i class="fas fa-shield-alt"></i>
                 <span class="demo-banner-text">
                     <strong>Demonstração Web</strong> — os dados ficam salvos apenas neste navegador. Nada é enviado a servidores.
                 </span>
             </div>
-
             <header class="header">
                 <div class="header-left">
                     <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
@@ -73,6 +75,8 @@
     <script src="js/storage.js"></script>
     <script src="js/utils/calculos.js"></script>
     <script src="js/components/modal.js"></script>
+    <script src="js/components/confirm.js"></script>
+    <script src="js/components/pagination.js"></script>
     <script src="js/modules/dashboard.js"></script>
     <script src="js/modules/produtos.js"></script>
     <script src="js/modules/categorias.js"></script>
@@ -84,6 +88,7 @@
     <script src="js/modules/contas.js"></script>
     <script src="js/modules/contasReceber.js"></script>
     <script src="js/modules/relatorios.js"></script>
+    <script src="js/modules/backup.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

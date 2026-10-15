@@ -1,8 +1,6 @@
 // Estado interno do módulo de Custos Fixos
 var custosCompetencia = { mes: new Date().getMonth() + 1, ano: new Date().getFullYear() };
-var custosModo = 'mensal'; // 'mensal' ou 'anual'
-
-// ---------- FUNÇÕES AUXILIARES ----------
+var custosModo = 'mensal';
 
 function filtrarCustosPorMesAno(mes, ano) {
     return custosFixos.filter(function(c) {
@@ -73,8 +71,6 @@ function alternarModo() {
     }
 }
 
-// ---------- VISÕES ----------
-
 function atualizarVisaoMensal() {
     var mes = custosCompetencia.mes;
     var ano = custosCompetencia.ano;
@@ -122,7 +118,7 @@ function atualizarVisaoMensal() {
     custosFiltrados.forEach(function(c) {
         var statusClass = c.status === 'pago' ? 'status-concluida' : (c.status === 'pendente' ? 'status-pendente' : 'status-cancelada');
         var statusTexto = c.status === 'pago' ? 'Pago' : (c.status === 'pendente' ? 'Pendente' : 'Vencido');
-        var dataFormatada = new Date(c.dataVencimento + 'T00:00:00').toLocaleDateString('pt-BR');
+        var dataFormatada = formatarData(c.dataVencimento);
         html += `
             <tr>
                 <td>${c.desc}</td>
@@ -170,8 +166,6 @@ function irParaMes(mes) {
     aplicarCompetencia();
 }
 
-// ---------- RENDERIZAÇÃO PRINCIPAL ----------
-
 function renderCustosFixosView() {
     var meses = [
         { valor: 1, nome: 'Janeiro' }, { valor: 2, nome: 'Fevereiro' }, { valor: 3, nome: 'Março' },
@@ -200,15 +194,12 @@ function renderCustosFixosView() {
         </div>
         <div id="custosConteudo"></div>`;
 
-    // Renderizar visão atual
     if (custosModo === 'mensal') {
         atualizarVisaoMensal();
     } else {
         atualizarVisaoAnual();
     }
 }
-
-// ---------- CRUD ----------
 
 function abrirModalCustoFixo(custo) {
     if (!custo) custo = null;
@@ -264,8 +255,13 @@ function editarCustoFixo(dataVencimento, desc) {
     if (custo) abrirModalCustoFixo(custo);
 }
 
-function excluirCustoFixo(dataVencimento, desc) {
-    if (confirm('Excluir custo "' + desc + '"?')) {
+async function excluirCustoFixo(dataVencimento, desc) {
+    var ok = await confirmar('Excluir o custo "' + desc + '"?', {
+        titulo: 'Excluir custo fixo',
+        tipo: 'perigo',
+        textoConfirmar: 'Excluir'
+    });
+    if (ok) {
         custosFixos = custosFixos.filter(function(c) { return !(c.dataVencimento === dataVencimento && c.desc === desc); });
         Storage.saveCustosFixos();
         if (custosModo === 'mensal') {

@@ -1,8 +1,6 @@
-// Estado interno do módulo de Contas a Pagar
 var contasCompetencia = { mes: new Date().getMonth() + 1, ano: new Date().getFullYear() };
 var contasModo = 'mensal';
 
-// Funções auxiliares
 function obterContasMes(mes, ano) {
     return contas.filter(function(c) {
         var partes = c.dataVencimento.split('-');
@@ -76,7 +74,6 @@ function alternarModoContas() {
     }
 }
 
-// Renderização principal
 function renderContasView() {
     var meses = [
         { valor: 1, nome: 'Janeiro' }, { valor: 2, nome: 'Fevereiro' }, { valor: 3, nome: 'Março' },
@@ -184,7 +181,6 @@ function irParaMesContas(mes) {
     aplicarCompetenciaContas();
 }
 
-// CRUD
 function abrirModalConta(conta) {
     if (conta === undefined) conta = null;
     var editando = conta !== null;
@@ -259,8 +255,13 @@ function editarConta(id) {
     if (c) abrirModalConta(c);
 }
 
-function excluirConta(id) {
-    if (confirm('Excluir esta conta?')) {
+async function excluirConta(id) {
+    var ok = await confirmar('Excluir esta conta a pagar?', {
+        titulo: 'Excluir conta',
+        tipo: 'perigo',
+        textoConfirmar: 'Excluir'
+    });
+    if (ok) {
         contas = contas.filter(function(c) { return c.id !== id; });
         Storage.saveContas();
         if (contasModo === 'mensal') {
@@ -285,7 +286,6 @@ function marcarContaPaga(id) {
     }
 }
 
-// Função auxiliar para adicionar meses a uma data ISO
 function adicionarMesesContas(dataISO, meses) {
     var partes = dataISO.split('-');
     var ano = parseInt(partes[0]);

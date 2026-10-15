@@ -1,4 +1,3 @@
-// Estado interno do módulo de Contas a Receber
 var receberCompetencia = { mes: new Date().getMonth() + 1, ano: new Date().getFullYear() };
 var receberModo = 'mensal';
 
@@ -280,12 +279,19 @@ function editarContaReceber(id) {
     if (c) abrirModalContaReceber(c);
 }
 
-function excluirContaReceber(id) {
+async function excluirContaReceber(id) {
     var c = contasReceber.find(function(x) { return x.id === id; });
     var msg = c && c.pedidoId
-        ? 'Esta conta foi gerada automaticamente pelo pedido #' + c.pedidoId + '. Excluí-la não remove o pedido. Continuar?'
-        : 'Excluir esta conta?';
-    if (confirm(msg)) {
+        ? 'Esta conta foi gerada automaticamente pelo pedido #' + c.pedidoId + '. Excluí-la não remove o pedido. Deseja continuar?'
+        : 'Excluir esta conta a receber?';
+
+    var ok = await confirmar(msg, {
+        titulo: 'Excluir conta a receber',
+        tipo: 'perigo',
+        textoConfirmar: 'Excluir'
+    });
+
+    if (ok) {
         contasReceber = contasReceber.filter(function(x) { return x.id !== id; });
         Storage.saveContasReceber();
         if (receberModo === 'mensal') {

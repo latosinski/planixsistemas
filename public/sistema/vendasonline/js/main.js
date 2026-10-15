@@ -1,3 +1,7 @@
+// ═══════════════════════════════════════════════════════════════
+// Planix Vendasonline — Orquestração
+// ═══════════════════════════════════════════════════════════════
+
 const pageTitle = document.getElementById('pageTitle');
 const sectionMap = {
     'dashboard': { title: 'Dashboard', render: renderDashboard },
@@ -10,7 +14,8 @@ const sectionMap = {
     'fornecedores': { title: 'Fornecedores', render: renderFornecedoresView },
     'contas': { title: 'Contas a Pagar', render: renderContasView },
     'contas-receber': { title: 'Contas a Receber', render: renderContasReceberView },
-    'relatorios': { title: 'Relatórios', render: renderRelatoriosView }
+    'relatorios': { title: 'Relatórios', render: renderRelatoriosView },
+    'backup': { title: 'Backup', render: renderBackupView }
 };
 
 function navigateTo(section) {
@@ -18,7 +23,7 @@ function navigateTo(section) {
     if (!info) return;
     info.render();
     pageTitle.textContent = info.title;
-    document.querySelectorAll('.nav-item').forEach(function(a) { a.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function (a) { a.classList.remove('active'); });
     var navItem = document.querySelector('.nav-item[data-section="' + section + '"]');
     if (navItem) navItem.classList.add('active');
     closeSidebar();
@@ -29,28 +34,48 @@ function closeSidebar() {
     document.getElementById('sidebarOverlay').classList.remove('active');
 }
 
-document.getElementById('menuToggle').addEventListener('click', function() {
+document.getElementById('menuToggle').addEventListener('click', function () {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('active');
 });
 document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
 document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
 
-document.querySelectorAll('.nav-item[data-section]').forEach(function(a) {
-    a.addEventListener('click', function() { navigateTo(a.dataset.section); });
+document.querySelectorAll('.nav-item[data-section]').forEach(function (a) {
+    a.addEventListener('click', function () { navigateTo(a.dataset.section); });
 });
 
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
+document.getElementById('modalOverlay').addEventListener('click', function (e) {
     if (e.target === this) fecharModal();
 });
 
+// ─── Botão Sair ───
+document.getElementById('logoutBtn').addEventListener('click', async function () {
+    var ok = await confirmar('Deseja realmente sair do sistema?', {
+        titulo: 'Encerrar aplicação',
+        tipo: 'info',
+        textoConfirmar: 'Sair',
+        textoCancelar: 'Ficar'
+    });
+    if (!ok) return;
+
+    if (window.app && typeof window.app.quit === 'function') {
+        window.app.quit();
+        return;
+    }
+    window.close();
+});
+
+// ─── Tema ───
 const themeToggle = document.getElementById('themeToggle');
 const icon = themeToggle.querySelector('i');
+
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
     icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 }
+
 var savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     setTheme(savedTheme);
@@ -58,9 +83,16 @@ if (savedTheme) {
     var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setTheme(prefersDark ? 'dark' : 'light');
 }
-themeToggle.addEventListener('click', function() {
+
+themeToggle.addEventListener('click', function () {
     var current = document.documentElement.getAttribute('data-theme') || 'light';
     setTheme(current === 'dark' ? 'light' : 'dark');
 });
 
-navigateTo('dashboard');
+// ─── Boot ───
+Storage.ready.then(function () {
+    navigateTo('dashboard');
+}).catch(function (err) {
+    console.error('[App] Erro ao inicializar:', err);
+    navigateTo('dashboard');
+});

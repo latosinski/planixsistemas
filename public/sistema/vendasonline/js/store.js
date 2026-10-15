@@ -8,3 +8,4 @@ var contasReceber = [];
 var fornecedores = [];
 var clientes = [];
 var categorias = [];
+var taxasProduto = [];
