@@ -30,7 +30,7 @@ const projetosData = [
       'Sistema de gerenciamento de operações de Day Trade.',
     imagem:
       '/img/projetos/tradermaxpro.jpg',
-      link: 'https://tradermaxpro.vercel.app',
+      link: 'https://planixtradermax.vercel.app',
   },
 ];
 
