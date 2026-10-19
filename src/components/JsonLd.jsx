@@ -4,18 +4,18 @@ export default function JsonLd() {
     '@graph': [
       {
         '@type': 'Organization',
-        name: 'VercelSistemas',
-        url: 'https://www.seusite.com.br',
-        logo: 'https://planixsistemas.vercel.app/img/logo.png', // opcional
+        name: 'Planix Sistemas',
+        url: 'https://planixsistemas.vercel.app',
+        logo: 'https://planixsistemas.vercel.app/img/logo.png',
         contactPoint: {
           '@type': 'ContactPoint',
-          telephone: '+55-51 98212-77790',
+          telephone: '+55-11-99999-9999', // Troque pelo seu telefone real
           contactType: 'customer service',
         },
       },
       {
         '@type': 'WebSite',
-        name: 'VercelSistemas',
+        name: 'Planix Sistemas',
         url: 'https://planixsistemas.vercel.app',
       },
     ],

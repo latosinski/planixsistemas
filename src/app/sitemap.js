@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = 'https://planixsistemas.vercel.app'; // substitua pelo domínio real
+  const baseUrl = 'https://planixsistemas.vercel.app';
 
   return [
     {
