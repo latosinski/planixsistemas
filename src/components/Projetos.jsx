@@ -25,11 +25,11 @@ const projetosData = [
   },
   {
     tag: 'Sistema Operações DayTrade',
-    titulo: 'Planix TraderMaxPro',
+    titulo: 'Planix TraderMax',
     descricao:
       'Sistema de gerenciamento de operações de Day Trade.',
     imagem:
-      '/img/projetos/tradermaxpro.jpg',
+      '/img/projetos/tradermax.jpg',
       link: 'https://planixtradermax.vercel.app',
   },
 ];
