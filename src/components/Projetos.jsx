@@ -23,6 +23,7 @@ const projetosData = [
       '/img/projetos/vendasonline.png',
       link: 'https://planixvendasonline.vercel.app/',
   },
+  
   {
     tag: 'Sistema Operações DayTrade',
     titulo: 'Planix TraderMax',
